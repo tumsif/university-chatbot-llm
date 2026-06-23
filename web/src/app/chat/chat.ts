@@ -1,8 +1,9 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, effect, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ChatService, Message } from '../services/chat.service';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-chat',
@@ -13,6 +14,7 @@ import { ChatService, Message } from '../services/chat.service';
 export class Chat implements OnInit {
   protected readonly chatService = inject(ChatService);
   private readonly route = inject(ActivatedRoute);
+  private title = inject(Title)
 
   // State management signals
   protected readonly messages = signal<Message[]>([]);
@@ -28,6 +30,16 @@ export class Chat implements OnInit {
         this.chatService.currentSessionId.set(sessionId);
         this.loadMessages(sessionId);
       }
+    });
+  }
+
+  constructor() {
+    effect(() => {
+      const currentId = this.chatService.currentSessionId();
+      const sessions = this.chatService.sessions();
+
+      const chatSession = sessions.find((value) => value.id == currentId);
+      this.title.setTitle(chatSession?.title ?? 'New Chat');
     });
   }
 
