@@ -100,9 +100,9 @@ class LLMClient:
             except Exception as e:
                 return False, f"Ollama connection error: {str(e)}"
 
-    async def generate_response(self, question: str, use_rag: bool = True) -> Dict[str, Any]:
+    async def generate_response(self, question: str, use_rag: bool = True, history: Optional[list] = None) -> Dict[str, Any]:
         """
-        Queries the local Ollama LLM and includes RAG context if applicable.
+        Queries the local Ollama LLM and includes RAG context if applicable, along with conversation history.
         """
         # 1. Health check
         is_healthy, health_msg = await self.check_ollama_health()
@@ -134,12 +134,16 @@ class LLMClient:
             "Keep answers concise and clear."
         )
 
-        user_content = f"{context}Student Question: {question}\nAssistant Response:"
+        messages = [{"role": "system", "content": system_prompt}]
 
-        messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_content}
-        ]
+        # Append conversation history
+        if history:
+            for item in history:
+                messages.append({"role": item["role"], "content": item["content"]})
+
+        # Append latest user query with context
+        user_content = f"{context}Student Question: {question}\nAssistant Response:"
+        messages.append({"role": "user", "content": user_content})
 
         # 4. Request Ollama API
         async with httpx.AsyncClient() as client:
