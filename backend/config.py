@@ -1,5 +1,8 @@
 import os
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+_ENV_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")
+
 
 class Settings(BaseSettings):
     ollama_base_url: str = "http://localhost:11434"
