@@ -106,12 +106,14 @@ async def health_check():
     Checks the system health status, verifying connection to the local LLM.
     """
     llm_ok, llm_msg = await llm_client.check_ollama_health()
+    faq_info = llm_client.faq_status()
     return {
-        "status": "healthy" if llm_ok else "degraded",
+        "status": "healthy" if llm_ok and faq_info["faq_entries_loaded"] > 0 else "degraded",
         "backend": "online",
         "llm_connected": llm_ok,
         "llm_message": llm_msg,
         "model_configured": settings.llm_model,
+        **faq_info,
         "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat()
     }
 
