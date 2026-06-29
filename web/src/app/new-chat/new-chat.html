@@ -38,7 +38,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <button
         type="button"
-        (click)="prefillQuery('When is the deadline to register for classes?')"
+        (click)="sendQuery('When is the deadline to register for classes?')"
         [disabled]="chatService.systemStatus() === 'offline' || isLoading()"
         class="p-4 bg-slate-900/50 hover:bg-slate-900 border border-slate-800 hover:border-purple-500/50 rounded-2xl text-left transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer group flex flex-col gap-1"
       >
@@ -48,7 +48,7 @@
 
       <button
         type="button"
-        (click)="prefillQuery('How many books can I borrow from the library?')"
+        (click)="sendQuery('How many books can I borrow from the library?')"
         [disabled]="chatService.systemStatus() === 'offline' || isLoading()"
         class="p-4 bg-slate-900/50 hover:bg-slate-900 border border-slate-800 hover:border-purple-500/50 rounded-2xl text-left transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer group flex flex-col gap-1"
       >
@@ -88,6 +88,9 @@
 
   <!-- Bottom Input Bar -->
   <div class="w-full max-w-2xl pt-4">
+    @if (inputError()) {
+      <p class="mb-2 text-xs text-amber-400 px-2 text-center">{{ inputError() }}</p>
+    }
     <form (submit)="onSubmit()" class="flex gap-3 relative">
       <input
         type="text"

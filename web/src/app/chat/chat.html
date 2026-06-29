@@ -126,6 +126,9 @@
 
   <!-- Chat Input Area -->
   <footer class="p-6 border-t border-slate-900 bg-slate-950">
+    @if (inputError()) {
+      <p class="max-w-4xl mx-auto mb-2 text-xs text-amber-400 px-2">{{ inputError() }}</p>
+    }
     <form (submit)="sendMessage()" class="max-w-4xl mx-auto flex gap-3 relative">
       <input
         type="text"

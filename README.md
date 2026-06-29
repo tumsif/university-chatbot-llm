@@ -57,9 +57,22 @@ pip install -r requirements.txt
 
 ### 3. Setup Local LLM Model
 Ensure the Ollama service is running, and pull the lightweight `llama3.2:1b` model:
+
 ```bash
+# Install Ollama (Linux — requires sudo)
+curl -fsSL https://ollama.com/install.sh | sh
+
+# Start Ollama (usually starts automatically after install)
+ollama serve
+
+# Pull the model used by this project
 ollama pull llama3.2:1b
+
+# Verify
+ollama list
 ```
+
+If Ollama is not installed, the backend `/health` endpoint will report `llm_connected: false` and the frontend will show an amber "LLM Service Disconnected" banner. Greeting and off-topic responses still work without the model.
 
 ### 4. Running the Backend API
 Start the FastAPI server on port `8000`:

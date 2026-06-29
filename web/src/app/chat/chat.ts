@@ -20,6 +20,7 @@ export class Chat implements OnInit {
   protected readonly messages = signal<Message[]>([]);
   protected readonly userQuery = signal('');
   protected readonly isLoading = signal(false);
+  protected readonly inputError = signal('');
   protected readonly systemStatus = this.chatService.systemStatus;
   protected readonly currentSession = computed(() => {
     const currentId = this.chatService.currentSessionId();
@@ -62,7 +63,11 @@ export class Chat implements OnInit {
 
   protected sendMessage() {
     const query = this.userQuery().trim();
-    if (!query) return;
+    if (!query) {
+      this.inputError.set('Please enter a question before sending.');
+      return;
+    }
+    this.inputError.set('');
 
     // Add user query to chat history locally first
     const userMsg: Message = {

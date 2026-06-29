@@ -15,6 +15,7 @@ export class NewChat implements OnInit {
 
   protected readonly userQuery = signal('');
   protected readonly isLoading = signal(false);
+  protected readonly inputError = signal('');
 
   ngOnInit() {
     // Reset any selected session in the sidebar
@@ -44,9 +45,12 @@ export class NewChat implements OnInit {
 
   protected onSubmit() {
     const query = this.userQuery().trim();
-    if (query) {
-      this.sendQuery(query);
-      this.userQuery.set('');
+    if (!query) {
+      this.inputError.set('Please enter a question before sending.');
+      return;
     }
+    this.inputError.set('');
+    this.sendQuery(query);
+    this.userQuery.set('');
   }
 }

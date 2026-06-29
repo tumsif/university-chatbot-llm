@@ -2,51 +2,231 @@
   {
     "category": "Course Registration",
     "question": "How do I register for courses and what is the deadline?",
-    "answer": "Course registration is completed online through the Student Portal. Go to 'Academic' -> 'Course Registration'. Select your courses according to your program structure and click 'Submit'. The deadline for regular course registration is the 2nd Friday of the semester. Late registration incurs a fee of $50 and is open until the 3rd Friday of the semester."
+    "answer": "Course registration is completed online through the Student Portal. Go to Academic → Course Registration, select courses according to your program structure, and click Submit. The deadline for regular registration is the 2nd Friday of the semester. Late registration incurs a $50 fee and is open until the 3rd Friday.",
+    "aliases": [
+      "when is the deadline to register for classes",
+      "how do i sign up for courses",
+      "course registration deadline",
+      "last day to register for modules",
+      "how to enroll in classes this semester"
+    ],
+    "keywords": ["register", "registration", "enroll", "enrollment", "courses", "deadline", "portal", "add", "drop", "semester"]
   },
   {
     "category": "Course Registration",
     "question": "Can I add or drop courses after the semester starts?",
-    "answer": "Yes, you can add or drop courses during the first two weeks of the semester (the Add/Drop period) via the Student Portal. No changes are permitted after the end of the second week."
+    "answer": "Yes. You may add or drop courses during the first two weeks of the semester (Add/Drop period) via the Student Portal. No schedule changes are permitted after the end of the second week.",
+    "aliases": [
+      "can i change my courses after lectures start",
+      "add drop period",
+      "swap a course mid semester",
+      "withdraw from a class"
+    ],
+    "keywords": ["add", "drop", "swap", "withdraw", "change", "courses", "weeks", "semester"]
+  },
+  {
+    "category": "Course Registration",
+    "question": "What happens if I register late for courses?",
+    "answer": "Late registration is allowed from the Monday after the regular deadline until the 3rd Friday of the semester. A late registration fee of $50 applies. Courses registered late may have limited seat availability.",
+    "aliases": [
+      "late registration fee",
+      "missed registration deadline",
+      "register after deadline"
+    ],
+    "keywords": ["late", "fee", "deadline", "registration", "50"]
   },
   {
     "category": "Examination Rules",
     "question": "What is the grading system and what happens if I fail a course?",
-    "answer": "The university uses a standard letter grading scale: A (70-100%, 5.0 GPA), B (60-69%, 4.0 GPA), C (50-59%, 3.0 GPA), D (40-49%, 2.0 GPA), and F (0-39%, 0.0 GPA). If you fail a course (grade F), you must re-register for the course and retake it in the next semester it is offered. A course can be retaken a maximum of three times."
+    "answer": "The university uses letter grades: A (70–100%, GPA 5.0), B (60–69%, 4.0), C (50–59%, 3.0), D (40–49%, 2.0), F (0–39%, 0.0). If you fail (grade F), you must re-register and retake the course the next time it is offered. A course may be retaken at most three times.",
+    "aliases": [
+      "grading scale",
+      "what grade do i need to pass",
+      "failed a course what now",
+      "gpa system",
+      "can i retake a failed module"
+    ],
+    "keywords": ["grade", "grading", "gpa", "fail", "failed", "retake", "pass", "marks"]
   },
   {
     "category": "Examination Rules",
     "question": "What happens if I miss an exam due to illness?",
-    "answer": "If you miss an exam due to a medical emergency, you must submit a medical report signed by the University Medical Officer to the Registry within 48 hours of the exam. If approved, you will be allowed to sit for a Special Examination in the break period."
+    "answer": "If you miss an exam due to a medical emergency, submit a medical report signed by the University Medical Officer to the Registry within 48 hours of the exam. If approved, you may sit a Special Examination during the break period.",
+    "aliases": [
+      "missed exam because i was sick",
+      "exam cancellation due to sickness",
+      "medical excuse for exam",
+      "special exam after illness",
+      "rules for exam cancellations or sickness"
+    ],
+    "keywords": ["miss", "missed", "illness", "sick", "medical", "exam", "special", "absent"]
+  },
+  {
+    "category": "Examination Rules",
+    "question": "What are the rules on cheating and academic misconduct during exams?",
+    "answer": "Cheating, plagiarism, and bringing unauthorized materials into an exam are serious offences. Penalties range from zero marks for the paper to suspension or expulsion, depending on severity. Report suspected misconduct to the Examinations Office.",
+    "aliases": [
+      "exam cheating policy",
+      "academic dishonesty",
+      "plagiarism rules",
+      "what happens if caught cheating"
+    ],
+    "keywords": ["cheat", "cheating", "plagiarism", "misconduct", "exam", "disciplinary"]
+  },
+  {
+    "category": "Examination Rules",
+    "question": "When do end-of-semester examinations take place?",
+    "answer": "Revision Week runs December 1–7. End-of-semester examinations are held December 8–22. Individual timetables are published on the Student Portal two weeks before exams begin.",
+    "aliases": [
+      "exam timetable",
+      "when are final exams",
+      "examination dates",
+      "when do exams start"
+    ],
+    "keywords": ["exam", "examination", "timetable", "final", "december", "revision"]
   },
   {
     "category": "Library Services",
     "question": "How many books can I borrow from the library and for how long?",
-    "answer": "Undergraduates can borrow up to 4 books for a duration of 14 days. Postgraduates can borrow up to 8 books for 30 days. Renewals can be made online twice unless the book has been reserved by another user. Overdue books attract a fine of $1 per day per book."
+    "answer": "Undergraduates may borrow up to 4 books for 14 days. Postgraduates may borrow up to 8 books for 30 days. Renewals can be made online twice unless another user has reserved the book. Overdue fines are $1 per day per book.",
+    "aliases": [
+      "library borrowing limit",
+      "how long can i keep library books",
+      "book loan period",
+      "library fine for late return"
+    ],
+    "keywords": ["library", "books", "borrow", "loan", "renew", "overdue", "fine"]
+  },
+  {
+    "category": "Library Services",
+    "question": "What are the library opening hours?",
+    "answer": "The main library is open Monday–Friday 8:00 AM–8:00 PM and Saturday 9:00 AM–4:00 PM. It is closed on Sundays and public holidays. Extended hours during exam week are announced on the library notice board and portal.",
+    "aliases": [
+      "when is the library open",
+      "library hours",
+      "library closing time"
+    ],
+    "keywords": ["library", "hours", "open", "closing", "schedule"]
   },
   {
     "category": "ICT Support",
-    "question": "How do I connect to the university campus Wi-Fi and reset my portal password?",
-    "answer": "To connect to the 'Uni-Wifi' network, select it on your device and log in using your student email (e.g. registrationNumber@student.university.edu) and your portal password. To reset your portal password, go to the Student Portal login page, click 'Forgot Password', and follow the email reset link. For further ICT issues, visit the Helpdesk at the Admin Block, Room 102, or email support@university.edu."
+    "question": "How do I connect to campus Wi-Fi and reset my portal password?",
+    "answer": "Connect to the Uni-Wifi network using your student email (e.g. registrationNumber@student.university.edu) and portal password. To reset your password, open the Student Portal login page, click Forgot Password, and follow the email link. For other ICT issues visit the Helpdesk at Admin Block Room 102 or email support@university.edu.",
+    "aliases": [
+      "wifi password university",
+      "forgot portal password",
+      "reset student email password",
+      "cannot login to portal",
+      "ict helpdesk location"
+    ],
+    "keywords": ["wifi", "wi-fi", "password", "portal", "login", "ict", "helpdesk", "email", "internet"]
+  },
+  {
+    "category": "ICT Support",
+    "question": "How do I access the Student Portal and e-learning platform?",
+    "answer": "Log in at portal.university.edu with your student ID and password. The e-learning (LMS) link appears on the portal dashboard after login. First-time users must activate their account using the credentials sent during admission.",
+    "aliases": [
+      "student portal login",
+      "lms access",
+      "e-learning platform",
+      "moodle login"
+    ],
+    "keywords": ["portal", "lms", "e-learning", "moodle", "login", "dashboard"]
   },
   {
     "category": "Hostel Application",
     "question": "How do I apply for a hostel and what are the hostel fees?",
-    "answer": "Hostel applications are opened 30 days before the start of each semester via the Student Portal. Accommodation is allocated on a first-come, first-served basis, with priority given to first-year and international students. The hostel fee is $350 per semester, payable in full before room allocation is finalized."
+    "answer": "Hostel applications open 30 days before each semester on the Student Portal. Allocation is first-come, first-served with priority for first-year and international students. The hostel fee is $350 per semester, payable in full before room allocation is confirmed.",
+    "aliases": [
+      "hostel allocation process",
+      "dormitory application",
+      "accommodation fees",
+      "how to get a room on campus",
+      "apply for hostel allocation"
+    ],
+    "keywords": ["hostel", "accommodation", "dorm", "room", "fee", "350", "apply"]
+  },
+  {
+    "category": "Hostel Application",
+    "question": "What items am I allowed to bring to the hostel?",
+    "answer": "Students may bring personal bedding, study lamp, and approved electrical appliances (rated 1000W or less). Cooking stoves, pets, and illegal substances are prohibited. A full checklist is on the Accommodation Office portal page.",
+    "aliases": [
+      "hostel rules what to bring",
+      "allowed items in dormitory",
+      "hostel prohibited items"
+    ],
+    "keywords": ["hostel", "bring", "items", "rules", "prohibited", "dormitory"]
   },
   {
     "category": "Fee Payment",
     "question": "What are the fee payment options and is there an instalment plan?",
-    "answer": "Tuition fees are payable via bank deposit, bank transfer, or online payment through the Student Portal. The university offers an instalment plan: 60% of total fees must be paid to register for courses at the start of the semester, and the remaining 40% must be paid before the start of final examinations. Failure to clear fees blocks access to the exam card."
+    "answer": "Tuition may be paid by bank deposit, bank transfer, or online via the Student Portal. Instalment plan: 60% must be paid to register for courses at semester start; the remaining 40% before final examinations. Unpaid fees block access to the exam card.",
+    "aliases": [
+      "tuition instalment plan",
+      "how to pay school fees",
+      "fee payment methods",
+      "can i pay fees in installments",
+      "minimum fee to register"
+    ],
+    "keywords": ["fees", "tuition", "payment", "instalment", "installment", "bank", "60", "40", "exam card"]
+  },
+  {
+    "category": "Fee Payment",
+    "question": "Where can I get a receipt or proof of fee payment?",
+    "answer": "After online payment, download the receipt from Student Portal → Finance → Payment History. For bank deposits, present the teller slip at the Bursary within 48 hours to have your account credited and a receipt issued.",
+    "aliases": [
+      "fee receipt download",
+      "proof of payment tuition",
+      "bursary office receipt"
+    ],
+    "keywords": ["receipt", "proof", "payment", "bursary", "finance"]
   },
   {
     "category": "Academic Calendar",
     "question": "What are the key dates for the current academic calendar?",
-    "answer": "The current semester runs as follows: Semester Starts / Lectures Begin: September 1st; Mid-Semester Break: October 15th to October 22nd; Lectures End: November 30th; Revision Week: December 1st to December 7th; End-of-Semester Examinations: December 8th to December 22nd."
+    "answer": "Current semester: Lectures begin September 1; Mid-Semester Break October 15–22; Lectures end November 30; Revision Week December 1–7; Examinations December 8–22. Full calendar PDF is on the university website under Academics.",
+    "aliases": [
+      "semester dates",
+      "when does semester start",
+      "academic year calendar",
+      "mid semester break dates",
+      "when do lectures end"
+    ],
+    "keywords": ["calendar", "semester", "september", "october", "november", "december", "break", "lectures"]
   },
   {
     "category": "Student Conduct",
     "question": "What are the rules regarding dress code and student ID cards?",
-    "answer": "Students are expected to dress decently and professionally. Inappropriate clothing (e.g., extremely short skirts, ripped jeans, sleeveless tops) is not permitted on campus. Student ID cards must be worn and visible at all times while on university premises. Lost ID cards can be replaced at the Security Office for a fee of $15."
+    "answer": "Students must dress decently and professionally on campus. Inappropriate clothing (e.g. extremely short skirts, ripped jeans, sleeveless tops in lecture halls) is not permitted. Student ID cards must be worn and visible at all times on university premises. Lost IDs are replaced at Security Office for $15.",
+    "aliases": [
+      "campus dress code",
+      "student id card rules",
+      "lost id card replacement",
+      "what to wear on campus"
+    ],
+    "keywords": ["dress", "code", "id", "card", "conduct", "security", "campus"]
+  },
+  {
+    "category": "Student Conduct",
+    "question": "How do I report harassment or a conduct violation?",
+    "answer": "Report harassment or misconduct to the Dean of Students Office (Student Centre, Room 201) or email conduct@university.edu. Reports are confidential. Emergency situations on campus should also be reported to Security at extension 911.",
+    "aliases": [
+      "report bullying on campus",
+      "student misconduct complaint",
+      "dean of students contact"
+    ],
+    "keywords": ["harassment", "misconduct", "report", "complaint", "conduct", "dean"]
+  },
+  {
+    "category": "General University Support",
+    "question": "What can you help me with?",
+    "answer": "I can help with course registration, examination rules, library services, ICT and portal support, hostel applications, fee payment, the academic calendar, and student conduct. Ask me anything about these university services.",
+    "aliases": [
+      "what do you do",
+      "what topics can you answer",
+      "help me with university questions",
+      "what services do you support"
+    ],
+    "keywords": ["help", "support", "topics", "services", "assist"]
   }
 ]
