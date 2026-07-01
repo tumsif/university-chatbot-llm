@@ -14,7 +14,7 @@ import { UiButton } from './ui/button';
           <div
             class="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-500/20 group-hover:shadow-violet-500/40 transition-shadow"
           >
-            <svg class="w-4.5 h-4.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
             </svg>
           </div>
@@ -31,11 +31,11 @@ import { UiButton } from './ui/button';
                 <span class="text-sm text-muted-foreground max-w-[140px] truncate">{{ user.full_name }}</span>
               </div>
             }
-            <ui-button routerLink="/app" size="sm">Open Chat</ui-button>
-            <ui-button variant="ghost" size="sm" (click)="auth.logout()">Sign out</ui-button>
+            <ui-button routerLink="/app" size="sm" label="Open Chat" />
+            <ui-button variant="ghost" size="sm" label="Sign out" (pressed)="auth.logout()" />
           } @else {
             <a routerLink="/login" class="text-sm text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hidden sm:block">Sign in</a>
-            <ui-button routerLink="/register" size="sm">Get Started</ui-button>
+            <ui-button routerLink="/register" size="sm" label="Get Started" />
           }
         </nav>
       </div>

@@ -1,34 +1,31 @@
-<div class="h-full flex flex-col">
-  <div class="flex-1 overflow-y-auto">
-    <div class="max-w-2xl mx-auto px-4 py-10 sm:py-16 flex flex-col items-center">
-      <!-- Logo mark -->
-      <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center mb-6 glow-violet">
+<div class="h-full min-h-0 flex flex-col">
+  <div class="flex-1 min-h-0 overflow-y-auto overscroll-contain">
+    <div class="max-w-2xl mx-auto px-4 py-6 sm:py-10 flex flex-col items-center">
+      <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center mb-5 glow-violet shrink-0">
         <svg class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
         </svg>
       </div>
 
-      <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-center mb-2">How can I help you?</h2>
-      <p class="text-muted-foreground text-sm text-center mb-10 max-w-md">Ask anything about UDSM — registration, exams, library, fees, or hostels.</p>
+      <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-center mb-2 shrink-0">How can I help you?</h2>
+      <p class="text-muted-foreground text-sm text-center mb-6 max-w-md shrink-0">Ask anything about UDSM — registration, exams, library, fees, or hostels.</p>
 
-      <!-- Suggestions grid -->
-      <div class="w-full grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-8">
+      <div class="w-full grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pb-4">
         @for (s of suggestions; track s.label) {
           <button
             type="button"
             (click)="sendQuery(s.query)"
             [disabled]="chatService.systemStatus() === 'offline' || isLoading()"
-            class="group text-left p-4 rounded-xl border border-border bg-card/40 hover:bg-card hover:border-violet-500/25 transition-all disabled:opacity-40 cursor-pointer"
+            class="p-4 bg-card/60 hover:bg-card border border-border hover:border-violet-500/40 rounded-2xl text-left transition-all hover:scale-[1.01] active:scale-[0.99] cursor-pointer group flex flex-col gap-1 disabled:opacity-40"
           >
-            <span class="text-base mb-1 block">{{ s.emoji }}</span>
-            <span class="text-sm font-medium text-foreground block mb-0.5">{{ s.label }}</span>
-            <span class="text-xs text-muted-foreground line-clamp-1">{{ s.query }}</span>
+            <span class="text-sm font-semibold" [class]="s.color">{{ s.emoji }} {{ s.label }}</span>
+            <span class="text-xs text-muted-foreground line-clamp-2">"{{ s.query }}"</span>
           </button>
         }
       </div>
 
       @if (isLoading()) {
-        <div class="flex items-center gap-2.5 text-sm text-muted-foreground">
+        <div class="flex items-center gap-2.5 text-sm text-muted-foreground shrink-0 pb-4">
           <div class="w-4 h-4 border-2 border-violet-500 border-t-transparent rounded-full animate-spin"></div>
           Starting conversation...
         </div>
@@ -36,24 +33,21 @@
     </div>
   </div>
 
-  <!-- Input bar -->
-  <div class="shrink-0 border-t border-border bg-background/80 backdrop-blur-md p-4">
+  <div class="shrink-0 border-t border-border bg-background/90 backdrop-blur-md p-3 sm:p-4">
     <div class="max-w-2xl mx-auto">
       @if (inputError()) {
         <p class="mb-2 text-xs text-amber-400 text-center">{{ inputError() }}</p>
       }
-      <form (ngSubmit)="onSubmit()" class="relative flex items-end gap-2">
-        <div class="flex-1 relative">
-          <textarea
-            rows="1"
-            name="query"
-            [(ngModel)]="userQuery"
-            [disabled]="isLoading() || chatService.systemStatus() === 'offline'"
-            placeholder="Message UniSupport AI..."
-            (keydown.enter)="onEnter($event)"
-            class="w-full resize-none bg-input border border-border rounded-2xl px-4 py-3 pr-4 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-500/50 transition-all disabled:opacity-50 min-h-[48px] max-h-32"
-          ></textarea>
-        </div>
+      <form (ngSubmit)="onSubmit()" class="flex items-end gap-2">
+        <textarea
+          rows="1"
+          name="query"
+          [(ngModel)]="userQuery"
+          [disabled]="isLoading() || chatService.systemStatus() === 'offline'"
+          placeholder="Message UniSupport AI..."
+          (keydown.enter)="onEnter($event)"
+          class="flex-1 resize-none bg-input border border-border rounded-xl px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-500/50 transition-all disabled:opacity-50 min-h-[48px] max-h-32"
+        ></textarea>
         <button
           type="submit"
           [disabled]="!userQuery().trim() || isLoading() || chatService.systemStatus() === 'offline'"
@@ -62,7 +56,7 @@
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/></svg>
         </button>
       </form>
-      <p class="text-[10px] text-muted-foreground/60 text-center mt-2">UniSupport AI can make mistakes. Verify important info with official UDSM sources.</p>
+      <p class="text-[10px] text-muted-foreground/60 text-center mt-2">UniSupport AI can make mistakes. Verify with official UDSM sources.</p>
     </div>
   </div>
 </div>

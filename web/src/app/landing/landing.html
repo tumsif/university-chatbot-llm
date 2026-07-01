@@ -24,10 +24,10 @@
 
           <div class="flex flex-col sm:flex-row gap-3">
             @if (auth.isAuthenticated()) {
-              <ui-button routerLink="/app" size="lg" class="glow-violet">Continue to Chat →</ui-button>
+              <ui-button routerLink="/app" size="lg" class="glow-violet" label="Continue to Chat →" />
             } @else {
-              <ui-button routerLink="/register" size="lg" class="glow-violet">Get started free</ui-button>
-              <ui-button routerLink="/login" variant="outline" size="lg">Sign in</ui-button>
+              <ui-button routerLink="/register" size="lg" class="glow-violet" label="Get started free" />
+              <ui-button routerLink="/login" variant="outline" size="lg" label="Sign in" />
             }
           </div>
 
@@ -138,9 +138,9 @@
         <h2 class="text-2xl sm:text-3xl font-bold tracking-tight">Ready to get answers?</h2>
         <p class="text-muted-foreground">Join UniSupport AI and stop searching through PDFs and notice boards.</p>
         @if (auth.isAuthenticated()) {
-          <ui-button routerLink="/app" size="lg" class="glow-violet px-10">Open your chat →</ui-button>
+          <ui-button routerLink="/app" size="lg" class="glow-violet px-10" label="Open your chat →" />
         } @else {
-          <ui-button routerLink="/register" size="lg" class="glow-violet px-10">Create free account</ui-button>
+          <ui-button routerLink="/register" size="lg" class="glow-violet px-10" label="Create free account" />
         }
       </div>
     </div>

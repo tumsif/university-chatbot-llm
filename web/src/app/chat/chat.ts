@@ -1,9 +1,10 @@
-import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, ElementRef, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ChatService, Message } from '../services/chat.service';
 import { Title } from '@angular/platform-browser';
+import { nowLocalTime } from '../lib/time';
 
 @Component({
   selector: 'app-chat',
@@ -16,11 +17,13 @@ export class Chat implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private title = inject(Title);
 
-  // State management signals
+  @ViewChild('messagesContainer') private messagesContainer?: ElementRef<HTMLDivElement>;
+
   protected readonly messages = signal<Message[]>([]);
   protected readonly userQuery = signal('');
   protected readonly isLoading = signal(false);
   protected readonly inputError = signal('');
+  protected readonly copiedIndex = signal<number | null>(null);
   protected readonly systemStatus = this.chatService.systemStatus;
 
   protected readonly ratings = [
@@ -31,13 +34,10 @@ export class Chat implements OnInit {
 
   protected readonly currentSession = computed(() => {
     const currentId = this.chatService.currentSessionId();
-    const sessions = this.chatService.sessions();
-
-    return sessions.find((value) => value.id == currentId);
+    return this.chatService.sessions().find((value) => value.id == currentId);
   });
 
   ngOnInit() {
-    // Listen to route parameter changes to update state
     this.route.paramMap.subscribe((params) => {
       const sessionId = params.get('id');
       if (sessionId) {
@@ -52,6 +52,12 @@ export class Chat implements OnInit {
       const currentSession = this.currentSession();
       this.title.setTitle(currentSession?.title ?? 'New Chat');
     });
+
+    effect(() => {
+      this.messages();
+      this.isLoading();
+      this.scrollToBottom();
+    });
   }
 
   private loadMessages(sessionId: string) {
@@ -60,11 +66,21 @@ export class Chat implements OnInit {
       next: (data) => {
         this.messages.set(data);
         this.isLoading.set(false);
+        this.scrollToBottom();
       },
       error: (err) => {
         console.error('Failed to load session messages:', err);
         this.isLoading.set(false);
       },
+    });
+  }
+
+  private scrollToBottom(): void {
+    requestAnimationFrame(() => {
+      const el = this.messagesContainer?.nativeElement;
+      if (el) {
+        el.scrollTop = el.scrollHeight;
+      }
     });
   }
 
@@ -84,23 +100,20 @@ export class Chat implements OnInit {
     }
     this.inputError.set('');
 
-    // Add user query to chat history locally first
     const userMsg: Message = {
       role: 'user',
       content: query,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      timestamp: nowLocalTime(),
     };
     this.messages.update((msgs) => [...msgs, userMsg]);
     this.userQuery.set('');
-
     this.isLoading.set(true);
+
     const sessionId = this.chatService.currentSessionId();
 
     this.chatService.sendMessage(query, sessionId).subscribe({
       next: (data) => {
         this.isLoading.set(false);
-
-        // Update the last user message with its DB-assigned ID
         this.messages.update((msgs) => {
           const updated = [...msgs];
           const lastUserIndex = updated.map((m) => m.role).lastIndexOf('user');
@@ -110,12 +123,11 @@ export class Chat implements OnInit {
           return updated;
         });
 
-        // Add assistant response to local messages
         const assistantMsg: Message = {
           id: data.answer_id,
           role: 'assistant',
           content: data.answer,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          timestamp: nowLocalTime(),
           category: data.category,
           rag_used: data.rag_used,
           matched_faq: data.matched_faq,
@@ -129,7 +141,7 @@ export class Chat implements OnInit {
         const errorMsg: Message = {
           role: 'assistant',
           content: `Error: ${errorDetail}`,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          timestamp: nowLocalTime(),
           category: 'Error',
         };
         this.messages.update((msgs) => [...msgs, errorMsg]);
@@ -137,18 +149,25 @@ export class Chat implements OnInit {
     });
   }
 
+  protected async copyMessage(index: number, content: string): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(content);
+      this.copiedIndex.set(index);
+      setTimeout(() => this.copiedIndex.set(null), 2000);
+    } catch {
+      /* clipboard unavailable */
+    }
+  }
+
   protected rateMessage(index: number, rating: 'Good' | 'Average' | 'Poor') {
     const msgs = this.messages();
     const msg = msgs[index];
     if (msg.role !== 'assistant' || !msg.id) return;
 
-    // Set rating locally to update UI immediately
     msg.rating = rating;
     this.messages.set([...msgs]);
 
-    // Send rating to backend
     this.chatService.rateMessage(msg.id, rating).subscribe({
-      next: () => console.log('Feedback submitted successfully'),
       error: (err) => console.error('Failed to submit feedback', err),
     });
   }

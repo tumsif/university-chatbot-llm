@@ -1,5 +1,6 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { ChatService } from '../services/chat.service';
@@ -7,7 +8,7 @@ import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-chat-layout',
-  imports: [NgClass, RouterOutlet, RouterLink],
+  imports: [NgClass, FormsModule, RouterOutlet, RouterLink],
   templateUrl: './chat-layout.html',
   styleUrl: './chat-layout.css',
 })
@@ -21,6 +22,15 @@ export class ChatLayout implements OnInit {
   protected readonly systemStatus = this.chatService.systemStatus;
   protected readonly currentUser = this.authService.currentUser;
   protected readonly sidebarOpen = signal(false);
+  protected readonly sidebarCollapsed = signal(false);
+  protected readonly searchQuery = signal('');
+
+  protected readonly filteredSessions = computed(() => {
+    const q = this.searchQuery().trim().toLowerCase();
+    const list = this.sessions();
+    if (!q) return list;
+    return list.filter((s) => s.title.toLowerCase().includes(q));
+  });
 
   protected readonly pageTitle = computed(() => {
     const id = this.currentSessionId();
@@ -43,6 +53,11 @@ export class ChatLayout implements OnInit {
 
   protected toggleSidebar(): void {
     this.sidebarOpen.update((v) => !v);
+  }
+
+  protected toggleCollapse(): void {
+    this.sidebarCollapsed.update((v) => !v);
+    this.sidebarOpen.set(false);
   }
 
   protected closeSidebar(): void {

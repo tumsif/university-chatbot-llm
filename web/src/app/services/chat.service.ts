@@ -2,6 +2,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
+import { formatLocalTime } from '../lib/time';
 
 export interface Message {
   id?: string;
@@ -79,10 +80,7 @@ export class ChatService {
           id: m.id,
           role: m.role as 'user' | 'assistant',
           content: m.content,
-          timestamp: new Date(m.created_at).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-          }),
+          timestamp: formatLocalTime(m.created_at),
           category: m.category,
           rag_used: m.rag_used,
           matched_faq: m.matched_faq,

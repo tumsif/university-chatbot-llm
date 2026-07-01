@@ -14,6 +14,7 @@ from backend.llm_client import LLMClient
 from backend.database import get_db, engine, Base
 from backend.models import ChatSession, Message, User
 from backend.migrations import run_migrations
+from backend.time_utils import now_local_iso, format_local
 from backend.auth import (
     create_access_token,
     get_current_user,
@@ -278,7 +279,7 @@ async def health_check():
         "llm_message": llm_msg,
         "model_configured": settings.llm_model,
         **faq_info,
-        "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat()
+        "timestamp": now_local_iso()
     }
 
 @app.get("/sessions", response_model=List[SessionResponse], tags=["Sessions"])
@@ -423,7 +424,7 @@ async def ask_question(
         # 3. Generate response using LLM & RAG, passing history context
         result = await llm_client.generate_response(question, use_rag=True, history=history)
         
-        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        timestamp = format_local()
         
         # 4. Save User Message to database
         import uuid
@@ -512,7 +513,7 @@ async def receive_feedback(request: FeedbackRequest):
             logger.error(f"Error reading feedback file: {str(e)}")
             
     feedback_entry = {
-        "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "timestamp": format_local(),
         "question": request.question,
         "answer": request.answer,
         "rating": request.rating

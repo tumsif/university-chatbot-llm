@@ -7,6 +7,7 @@ import { ChatService } from '../services/chat.service';
   selector: 'app-new-chat',
   imports: [FormsModule],
   templateUrl: './new-chat.html',
+  styleUrl: './new-chat.css',
 })
 export class NewChat implements OnInit {
   protected readonly chatService = inject(ChatService);
@@ -17,10 +18,10 @@ export class NewChat implements OnInit {
   protected readonly inputError = signal('');
 
   protected readonly suggestions = [
-    { emoji: '📅', label: 'Registration', query: 'When is the deadline to register for classes?' },
-    { emoji: '📚', label: 'Library', query: 'How many books can I borrow from the library?' },
-    { emoji: '📝', label: 'Examinations', query: 'What are the rules for exam cancellations or sickness?' },
-    { emoji: '🏠', label: 'Hostels', query: 'How do I apply for hostel allocation?' },
+    { emoji: '📅', label: 'Registration Deadlines', query: 'When is the deadline to register for classes?', color: 'text-purple-400 group-hover:text-purple-300' },
+    { emoji: '📚', label: 'Library Regulations', query: 'How many books can I borrow from the library?', color: 'text-blue-400 group-hover:text-blue-300' },
+    { emoji: '📝', label: 'Examination Policies', query: 'What are the rules for exam cancellations or sickness?', color: 'text-emerald-400 group-hover:text-emerald-300' },
+    { emoji: '🏠', label: 'Hostel Application', query: 'How do I apply for hostel allocation?', color: 'text-amber-400 group-hover:text-amber-300' },
   ];
 
   ngOnInit() {
