@@ -1,125 +1,68 @@
-<div class="max-w-3xl mx-auto my-auto px-4 py-8 flex flex-col items-center justify-center min-h-[70vh] space-y-8">
-  <!-- Welcome Icon -->
-  <div class="relative group">
-    <div class="absolute -inset-0.5 bg-linear-to-r from-purple-600 to-blue-600 rounded-full blur-xl opacity-40 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
-    <div class="relative p-5 rounded-full bg-slate-900 border border-slate-800 text-purple-400">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="w-12 h-12"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        stroke-width="1.5"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-        />
-      </svg>
-    </div>
-  </div>
-
-  <!-- Text -->
-  <div class="text-center space-y-3">
-    <h3 class="text-3xl font-extrabold tracking-tight bg-linear-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-      Welcome to UniSupport AI
-    </h3>
-    <p class="text-slate-400 text-sm max-w-lg mx-auto leading-relaxed">
-      Your self-hosted smart assistant. Ask any question about course registration, libraries, exam guidelines, fee structures, or campus hostels.
-    </p>
-  </div>
-
-  <!-- Grid of suggestions -->
-  <div class="w-full max-w-2xl">
-    <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-4 text-center">
-      Suggested Prompt Examples
-    </h4>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <button
-        type="button"
-        (click)="sendQuery('When is the deadline to register for classes?')"
-        [disabled]="chatService.systemStatus() === 'offline' || isLoading()"
-        class="p-4 bg-slate-900/50 hover:bg-slate-900 border border-slate-800 hover:border-purple-500/50 rounded-2xl text-left transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer group flex flex-col gap-1"
-      >
-        <span class="text-sm font-semibold text-purple-400 group-hover:text-purple-300">📅 Registration Deadlines</span>
-        <span class="text-xs text-slate-400">"When is the deadline to register for classes?"</span>
-      </button>
-
-      <button
-        type="button"
-        (click)="sendQuery('How many books can I borrow from the library?')"
-        [disabled]="chatService.systemStatus() === 'offline' || isLoading()"
-        class="p-4 bg-slate-900/50 hover:bg-slate-900 border border-slate-800 hover:border-purple-500/50 rounded-2xl text-left transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer group flex flex-col gap-1"
-      >
-        <span class="text-sm font-semibold text-blue-400 group-hover:text-blue-300">📚 Library Regulations</span>
-        <span class="text-xs text-slate-400">"How many books can I borrow from the library?"</span>
-      </button>
-
-      <button
-        type="button"
-        (click)="prefillQuery('What are the rules for exam cancellations or sickness?')"
-        [disabled]="chatService.systemStatus() === 'offline' || isLoading()"
-        class="p-4 bg-slate-900/50 hover:bg-slate-900 border border-slate-800 hover:border-purple-500/50 rounded-2xl text-left transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer group flex flex-col gap-1"
-      >
-        <span class="text-sm font-semibold text-emerald-400 group-hover:text-emerald-300">📝 Examination Policies</span>
-        <span class="text-xs text-slate-400">"What are the rules for exam cancellations or sickness?"</span>
-      </button>
-
-      <button
-        type="button"
-        (click)="prefillQuery('How do I apply for hostel allocation?')"
-        [disabled]="chatService.systemStatus() === 'offline' || isLoading()"
-        class="p-4 bg-slate-900/50 hover:bg-slate-900 border border-slate-800 hover:border-purple-500/50 rounded-2xl text-left transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer group flex flex-col gap-1"
-      >
-        <span class="text-sm font-semibold text-amber-400 group-hover:text-amber-300">🏠 Hostel Application</span>
-        <span class="text-xs text-slate-400">"How do I apply for hostel allocation?"</span>
-      </button>
-    </div>
-  </div>
-
-  <!-- Loading State (if starting session) -->
-  @if (isLoading()) {
-    <div class="flex items-center gap-3 text-sm text-slate-400 bg-slate-900 border border-slate-800 px-6 py-3 rounded-2xl animate-pulse">
-      <div class="w-4 h-4 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-      Please wait...
-    </div>
-  }
-
-  <!-- Bottom Input Bar -->
-  <div class="w-full max-w-2xl pt-4">
-    @if (inputError()) {
-      <p class="mb-2 text-xs text-amber-400 px-2 text-center">{{ inputError() }}</p>
-    }
-    <form (submit)="onSubmit()" class="flex gap-3 relative">
-      <input
-        type="text"
-        name="query"
-        [(ngModel)]="userQuery"
-        [disabled]="isLoading() || chatService.systemStatus() === 'offline'"
-        placeholder="Ask a question to start a new chat..."
-        class="flex-1 bg-slate-900 border border-slate-800 hover:border-slate-700 focus:border-purple-500 outline-none rounded-full px-6 py-4 text-sm text-slate-100 placeholder-slate-500 transition-all shadow-inner focus:ring-1 focus:ring-purple-500/20"
-      />
-      <button
-        type="submit"
-        [disabled]="!userQuery().trim() || isLoading() || chatService.systemStatus() === 'offline'"
-        class="bg-linear-to-r from-purple-600 to-blue-600 text-white rounded-full p-4 flex items-center justify-center shadow-lg hover:from-purple-500 hover:to-blue-500 transition-all hover:scale-105 active:scale-95 disabled:opacity-40 disabled:scale-100 disabled:pointer-events-none cursor-pointer"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="w-5 h-5 transform rotate-90"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-          />
+<div class="h-full flex flex-col">
+  <div class="flex-1 overflow-y-auto">
+    <div class="max-w-2xl mx-auto px-4 py-10 sm:py-16 flex flex-col items-center">
+      <!-- Logo mark -->
+      <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center mb-6 glow-violet">
+        <svg class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
         </svg>
-      </button>
-    </form>
+      </div>
+
+      <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-center mb-2">How can I help you?</h2>
+      <p class="text-muted-foreground text-sm text-center mb-10 max-w-md">Ask anything about UDSM — registration, exams, library, fees, or hostels.</p>
+
+      <!-- Suggestions grid -->
+      <div class="w-full grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-8">
+        @for (s of suggestions; track s.label) {
+          <button
+            type="button"
+            (click)="sendQuery(s.query)"
+            [disabled]="chatService.systemStatus() === 'offline' || isLoading()"
+            class="group text-left p-4 rounded-xl border border-border bg-card/40 hover:bg-card hover:border-violet-500/25 transition-all disabled:opacity-40 cursor-pointer"
+          >
+            <span class="text-base mb-1 block">{{ s.emoji }}</span>
+            <span class="text-sm font-medium text-foreground block mb-0.5">{{ s.label }}</span>
+            <span class="text-xs text-muted-foreground line-clamp-1">{{ s.query }}</span>
+          </button>
+        }
+      </div>
+
+      @if (isLoading()) {
+        <div class="flex items-center gap-2.5 text-sm text-muted-foreground">
+          <div class="w-4 h-4 border-2 border-violet-500 border-t-transparent rounded-full animate-spin"></div>
+          Starting conversation...
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Input bar -->
+  <div class="shrink-0 border-t border-border bg-background/80 backdrop-blur-md p-4">
+    <div class="max-w-2xl mx-auto">
+      @if (inputError()) {
+        <p class="mb-2 text-xs text-amber-400 text-center">{{ inputError() }}</p>
+      }
+      <form (ngSubmit)="onSubmit()" class="relative flex items-end gap-2">
+        <div class="flex-1 relative">
+          <textarea
+            rows="1"
+            name="query"
+            [(ngModel)]="userQuery"
+            [disabled]="isLoading() || chatService.systemStatus() === 'offline'"
+            placeholder="Message UniSupport AI..."
+            (keydown.enter)="onEnter($event)"
+            class="w-full resize-none bg-input border border-border rounded-2xl px-4 py-3 pr-4 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-500/50 transition-all disabled:opacity-50 min-h-[48px] max-h-32"
+          ></textarea>
+        </div>
+        <button
+          type="submit"
+          [disabled]="!userQuery().trim() || isLoading() || chatService.systemStatus() === 'offline'"
+          class="shrink-0 w-11 h-11 rounded-xl bg-violet-600 hover:bg-violet-500 text-white flex items-center justify-center transition-all disabled:opacity-30 disabled:pointer-events-none cursor-pointer active:scale-95"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </form>
+      <p class="text-[10px] text-muted-foreground/60 text-center mt-2">UniSupport AI can make mistakes. Verify important info with official UDSM sources.</p>
+    </div>
   </div>
 </div>

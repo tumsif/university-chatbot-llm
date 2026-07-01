@@ -1,3 +1,150 @@
-/* You can add global styles to this file, and also import other style files */
-
 @import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  --color-background: #09090b;
+  --color-foreground: #fafafa;
+  --color-card: #111113;
+  --color-card-foreground: #fafafa;
+  --color-popover: #111113;
+  --color-popover-foreground: #fafafa;
+  --color-primary: #7c3aed;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #1c1c21;
+  --color-secondary-foreground: #fafafa;
+  --color-muted: #18181b;
+  --color-muted-foreground: #a1a1aa;
+  --color-accent: #1f1f27;
+  --color-accent-foreground: #fafafa;
+  --color-destructive: #ef4444;
+  --color-border: #27272a;
+  --color-input: #18181b;
+  --color-ring: #7c3aed;
+  --color-brand: #8b5cf6;
+  --color-brand-light: #a78bfa;
+  --color-surface: #0f0f12;
+
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: rgba(124, 58, 237, 0.35);
+  color: #fff;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.mesh-bg {
+  background-color: #09090b;
+  background-image:
+    radial-gradient(ellipse 80% 60% at 50% -20%, rgba(124, 58, 237, 0.18), transparent),
+    radial-gradient(ellipse 50% 40% at 100% 0%, rgba(59, 130, 246, 0.12), transparent),
+    radial-gradient(ellipse 40% 30% at 0% 100%, rgba(124, 58, 237, 0.08), transparent);
+}
+
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+.glass {
+  background: rgba(17, 17, 19, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #c4b5fd 0%, #818cf8 50%, #38bdf8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.glow-violet {
+  box-shadow: 0 0 40px rgba(124, 58, 237, 0.25);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.85);
+  }
+}
+
+.animate-pulse-dot {
+  animation: pulse-dot 2s ease-in-out infinite;
+}

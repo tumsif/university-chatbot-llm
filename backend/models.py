@@ -4,13 +4,31 @@ from sqlalchemy import Column, String, DateTime, Boolean, Text, ForeignKey
 from sqlalchemy.orm import relationship
 from backend.database import Base
 
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    email = Column(String(255), unique=True, nullable=False, index=True)
+    full_name = Column(String(255), nullable=False)
+    hashed_password = Column(String(255), nullable=False)
+    created_at = Column(
+        DateTime,
+        default=lambda: datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None),
+    )
+
+    sessions = relationship("ChatSession", back_populates="user", cascade="all, delete-orphan")
+
+
 class ChatSession(Base):
     __tablename__ = "chat_sessions"
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=True, index=True)
     title = Column(String(255), default="New Chat")
     created_at = Column(DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None))
 
+    user = relationship("User", back_populates="sessions")
     messages = relationship("Message", back_populates="session", cascade="all, delete-orphan")
 
 class Message(Base):

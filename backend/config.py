@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     # Optional production .env fields (ignored if unused)
     environment: str = "development"
     debug: bool = False
-    secret_key: str = ""
+    secret_key: str = "change-me-in-production-use-a-long-random-string"
 
     model_config = SettingsConfigDict(
         env_prefix="APP_",

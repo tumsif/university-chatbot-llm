@@ -7,7 +7,6 @@ import { ChatService } from '../services/chat.service';
   selector: 'app-new-chat',
   imports: [FormsModule],
   templateUrl: './new-chat.html',
-  styleUrl: './new-chat.css',
 })
 export class NewChat implements OnInit {
   protected readonly chatService = inject(ChatService);
@@ -17,29 +16,37 @@ export class NewChat implements OnInit {
   protected readonly isLoading = signal(false);
   protected readonly inputError = signal('');
 
+  protected readonly suggestions = [
+    { emoji: '📅', label: 'Registration', query: 'When is the deadline to register for classes?' },
+    { emoji: '📚', label: 'Library', query: 'How many books can I borrow from the library?' },
+    { emoji: '📝', label: 'Examinations', query: 'What are the rules for exam cancellations or sickness?' },
+    { emoji: '🏠', label: 'Hostels', query: 'How do I apply for hostel allocation?' },
+  ];
+
   ngOnInit() {
-    // Reset any selected session in the sidebar
     this.chatService.currentSessionId.set(null);
   }
 
-  protected prefillQuery(query: string) {
-    this.userQuery.set(query);
+  protected onEnter(event: Event): void {
+    const ke = event as KeyboardEvent;
+    if (!ke.shiftKey) {
+      ke.preventDefault();
+      this.onSubmit();
+    }
   }
 
   protected sendQuery(query: string) {
     if (!query.trim() || this.isLoading()) return;
-
     this.isLoading.set(true);
     this.chatService.sendMessage(query, null).subscribe({
       next: (data) => {
         this.isLoading.set(false);
-        // Navigate to the newly created session
-        this.router.navigate(['/chat', data.session_id]);
+        this.router.navigate(['/app/chat', data.session_id]);
       },
       error: (err) => {
         this.isLoading.set(false);
         console.error('Failed to start session:', err);
-      }
+      },
     });
   }
 

@@ -5,16 +5,24 @@ import logging
 from typing import Optional, List
 from fastapi import FastAPI, HTTPException, status, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from backend.config import settings
 from backend.llm_client import LLMClient
 from backend.database import get_db, engine, Base
-from backend.models import ChatSession, Message
+from backend.models import ChatSession, Message, User
+from backend.migrations import run_migrations
+from backend.auth import (
+    create_access_token,
+    get_current_user,
+    hash_password,
+    verify_password,
+)
 
-# Create database tables automatically
-Base.metadata.create_all(bind=engine)
+# Apply schema migrations (creates tables + patches legacy columns)
+run_migrations()
 
 # Ensure logs directory exists
 os.makedirs(os.path.dirname(settings.log_file), exist_ok=True)
@@ -32,10 +40,48 @@ console_handler = logging.StreamHandler()
 console_handler.setFormatter(formatter)
 logger.addHandler(console_handler)
 
+OPENAPI_TAGS = [
+    {
+        "name": "Health",
+        "description": "System and LLM connectivity checks.",
+    },
+    {
+        "name": "Auth",
+        "description": "User registration, login, and profile.",
+    },
+    {
+        "name": "Chat",
+        "description": "Ask questions — RAG + local LLM pipeline.",
+    },
+    {
+        "name": "Sessions",
+        "description": "Chat session history stored in SQLite.",
+    },
+    {
+        "name": "Feedback",
+        "description": "Response ratings and legacy feedback logging.",
+    },
+]
+
 app = FastAPI(
-    title="University Student Support Assistant API",
-    description="Backend API for retrieving support information augmented with an LLM and Database history.",
-    version="2.0.0"
+    title="UniSupport AI — Student Support Assistant API",
+    description=(
+        "Self-hosted UDSM student support backend powered by FastAPI, Ollama, and FAQ-based RAG.\n\n"
+        "**Interactive docs:** use this page (`/docs`) to try endpoints.\n\n"
+        "**Main flow:** `POST /ask` → FAQ retrieval → Ollama LLM → saved to session history."
+    ),
+    version="2.1.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json",
+    openapi_tags=OPENAPI_TAGS,
+    contact={
+        "name": "UniSupport AI",
+        "url": "https://unisupport.rejoda.co.tz",
+    },
+    license_info={
+        "name": "Academic project — IS 365",
+    },
 )
 
 # CORS setup
@@ -77,8 +123,22 @@ class MessageResponse(BaseModel):
         from_attributes = True
 
 class AskRequest(BaseModel):
-    question: str = Field(..., description="The query from the student.")
-    session_id: Optional[str] = Field(None, description="The session ID. If not provided, a new session is created.")
+    question: str = Field(
+        ...,
+        description="The student's question in natural language.",
+        examples=["How many books can I borrow from the library?"],
+    )
+    session_id: Optional[str] = Field(
+        None,
+        description="Existing chat session UUID. Omit to start a new session.",
+    )
+
+    model_config = {"json_schema_extra": {
+        "examples": [
+            {"question": "When is the ARIS registration deadline?"},
+            {"question": "How do I reset my ARIS password?", "session_id": "abc-123"},
+        ]
+    }}
 
 class AskResponse(BaseModel):
     session_id: str
@@ -90,6 +150,19 @@ class AskResponse(BaseModel):
     rag_used: bool
     timestamp: str
 
+    model_config = {"json_schema_extra": {
+        "examples": [{
+            "session_id": "4fdaa5dd-cf44-4a83-a522-7878d65faf68",
+            "question_id": "5bc24767-9f4f-4686-9f11-2d7d10cc5fb2",
+            "answer_id": "834af41c-1b03-44e3-be0e-b6c5154281b3",
+            "question": "How many books can I borrow?",
+            "answer": "Undergraduate students can borrow up to 3 books for 14 days...",
+            "category": "Library Services",
+            "rag_used": True,
+            "timestamp": "2026-06-29 23:22:00",
+        }]
+    }}
+
 class RatingRequest(BaseModel):
     rating: str = Field(..., description="The rating: Good, Average, or Poor.")
 
@@ -98,9 +171,100 @@ class FeedbackRequest(BaseModel):
     answer: str = Field(..., description="The assistant's generated response.")
     rating: str = Field(..., description="The rating: Good, Average, or Poor.")
 
+
+class UserRegister(BaseModel):
+    email: str = Field(..., description="Student email address.")
+    password: str = Field(..., min_length=6, description="Account password (min 6 characters).")
+    full_name: str = Field(..., min_length=2, description="Full name.")
+
+
+class UserLogin(BaseModel):
+    email: str
+    password: str
+
+
+class UserResponse(BaseModel):
+    id: str
+    email: str
+    full_name: str
+    created_at: datetime.datetime
+
+    class Config:
+        from_attributes = True
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: UserResponse
+
+
+def _get_user_session(db: Session, session_id: str, user: User) -> ChatSession:
+    session = (
+        db.query(ChatSession)
+        .filter(ChatSession.id == session_id, ChatSession.user_id == user.id)
+        .first()
+    )
+    if not session:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
+    return session
+
+
 # --- Endpoints ---
 
-@app.get("/health")
+@app.get("/", include_in_schema=False)
+async def root():
+    """Redirect browser root to Swagger UI."""
+    return RedirectResponse(url="/docs")
+
+
+@app.post("/auth/register", response_model=TokenResponse, tags=["Auth"])
+def register_user(payload: UserRegister, db: Session = Depends(get_db)):
+    """Create a new student account and return an access token."""
+    email = payload.email.strip().lower()
+    existing = db.query(User).filter(User.email == email).first()
+    if existing:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="An account with this email already exists.",
+        )
+
+    user = User(
+        email=email,
+        full_name=payload.full_name.strip(),
+        hashed_password=hash_password(payload.password),
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    token = create_access_token(user.id)
+    logger.info(f"New user registered: {user.email}")
+    return TokenResponse(access_token=token, user=user)
+
+
+@app.post("/auth/login", response_model=TokenResponse, tags=["Auth"])
+def login_user(payload: UserLogin, db: Session = Depends(get_db)):
+    """Authenticate with email and password."""
+    email = payload.email.strip().lower()
+    user = db.query(User).filter(User.email == email).first()
+    if not user or not verify_password(payload.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password.",
+        )
+
+    token = create_access_token(user.id)
+    return TokenResponse(access_token=token, user=user)
+
+
+@app.get("/auth/me", response_model=UserResponse, tags=["Auth"])
+def get_me(current_user: User = Depends(get_current_user)):
+    """Return the currently authenticated user profile."""
+    return current_user
+
+
+@app.get("/health", tags=["Health"])
 async def health_check():
     """
     Checks the system health status, verifying connection to the local LLM.
@@ -117,45 +281,80 @@ async def health_check():
         "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat()
     }
 
-@app.get("/sessions", response_model=List[SessionResponse])
-def get_sessions(db: Session = Depends(get_db)):
-    """Fetch all chat sessions ordered by created_at descending."""
-    return db.query(ChatSession).order_by(ChatSession.created_at.desc()).all()
+@app.get("/sessions", response_model=List[SessionResponse], tags=["Sessions"])
+def get_sessions(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Fetch all chat sessions for the authenticated user."""
+    return (
+        db.query(ChatSession)
+        .filter(ChatSession.user_id == current_user.id)
+        .order_by(ChatSession.created_at.desc())
+        .all()
+    )
 
-@app.post("/sessions", response_model=SessionResponse)
-def create_session(session_data: Optional[SessionCreate] = None, db: Session = Depends(get_db)):
+
+@app.post("/sessions", response_model=SessionResponse, tags=["Sessions"])
+def create_session(
+    session_data: Optional[SessionCreate] = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     """Create a new chat session."""
     title = "New Chat"
     if session_data and session_data.title:
         title = session_data.title
-    session = ChatSession(title=title)
+    session = ChatSession(title=title, user_id=current_user.id)
     db.add(session)
     db.commit()
     db.refresh(session)
     return session
 
-@app.delete("/sessions/{session_id}")
-def delete_session(session_id: str, db: Session = Depends(get_db)):
+
+@app.delete("/sessions/{session_id}", tags=["Sessions"])
+def delete_session(
+    session_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     """Delete a chat session and all associated messages."""
-    session = db.query(ChatSession).filter(ChatSession.id == session_id).first()
-    if not session:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
+    session = _get_user_session(db, session_id, current_user)
     db.delete(session)
     db.commit()
     return {"status": "success", "message": "Session deleted successfully"}
 
-@app.get("/sessions/{session_id}/messages", response_model=List[MessageResponse])
-def get_session_messages(session_id: str, db: Session = Depends(get_db)):
-    """Fetch all messages for a specific session ordered by created_at ascending."""
-    session = db.query(ChatSession).filter(ChatSession.id == session_id).first()
-    if not session:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
-    return db.query(Message).filter(Message.session_id == session_id).order_by(Message.created_at.asc()).all()
 
-@app.post("/messages/{message_id}/rate")
-def rate_message(message_id: str, request: RatingRequest, db: Session = Depends(get_db)):
+@app.get("/sessions/{session_id}/messages", response_model=List[MessageResponse], tags=["Sessions"])
+def get_session_messages(
+    session_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Fetch all messages for a specific session ordered by created_at ascending."""
+    _get_user_session(db, session_id, current_user)
+    return (
+        db.query(Message)
+        .filter(Message.session_id == session_id)
+        .order_by(Message.created_at.asc())
+        .all()
+    )
+
+
+@app.post("/messages/{message_id}/rate", tags=["Feedback"])
+def rate_message(
+    message_id: str,
+    request: RatingRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     """Update feedback rating for a specific assistant message."""
-    message = db.query(Message).filter(Message.id == message_id).first()
+    message = (
+        db.query(Message)
+        .join(ChatSession, Message.session_id == ChatSession.id)
+        .filter(Message.id == message_id, ChatSession.user_id == current_user.id)
+        .first()
+    )
     if not message:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Message not found")
     if message.role != "assistant":
@@ -167,8 +366,12 @@ def rate_message(message_id: str, request: RatingRequest, db: Session = Depends(
     db.commit()
     return {"status": "success", "message": "Rating saved successfully"}
 
-@app.post("/ask", response_model=AskResponse)
-async def ask_question(request: AskRequest, db: Session = Depends(get_db)):
+@app.post("/ask", response_model=AskResponse, tags=["Chat"])
+async def ask_question(
+    request: AskRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     """
     Accepts student questions, retrieves context (RAG) and chat history,
     queries local LLM, logs details, and saves both messages to the database.
@@ -188,11 +391,18 @@ async def ask_question(request: AskRequest, db: Session = Depends(get_db)):
     session_id = request.session_id
     session = None
     if session_id:
-        session = db.query(ChatSession).filter(ChatSession.id == session_id).first()
-    
+        session = (
+            db.query(ChatSession)
+            .filter(ChatSession.id == session_id, ChatSession.user_id == current_user.id)
+            .first()
+        )
+
     if not session:
         # Create a new session if none exists or invalid session_id is provided
-        session = ChatSession(title=question[:40] + ("..." if len(question) > 40 else ""))
+        session = ChatSession(
+            title=question[:40] + ("..." if len(question) > 40 else ""),
+            user_id=current_user.id,
+        )
         db.add(session)
         db.commit()
         db.refresh(session)
@@ -286,7 +496,7 @@ async def ask_question(request: AskRequest, db: Session = Depends(get_db)):
             detail=f"An error occurred while generating response: {str(e)}"
         )
 
-@app.post("/feedback")
+@app.post("/feedback", tags=["Feedback"])
 async def receive_feedback(request: FeedbackRequest):
     """Legacy endpoint supporting feedback file dump."""
     feedback_file = os.path.join(os.path.dirname(settings.log_file), "feedback.json")

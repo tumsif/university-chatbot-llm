@@ -42,8 +42,7 @@ export class ChatService {
   readonly healthDetails = signal<HealthInfo | null>(null);
 
   constructor() {
-    this.checkSystemHealth();
-    this.loadSessions();
+    // Sessions and health are loaded after authentication in ChatLayout
   }
 
   checkSystemHealth(): void {

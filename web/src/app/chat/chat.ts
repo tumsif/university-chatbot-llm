@@ -1,13 +1,13 @@
 import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { DatePipe, NgClass } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ChatService, Message } from '../services/chat.service';
 import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-chat',
-  imports: [NgClass, FormsModule, DatePipe],
+  imports: [NgClass, FormsModule],
   templateUrl: './chat.html',
   styleUrl: './chat.css',
 })
@@ -22,6 +22,13 @@ export class Chat implements OnInit {
   protected readonly isLoading = signal(false);
   protected readonly inputError = signal('');
   protected readonly systemStatus = this.chatService.systemStatus;
+
+  protected readonly ratings = [
+    { value: 'Good' as const, emoji: '👍', label: 'Good' },
+    { value: 'Average' as const, emoji: '😐', label: 'Average' },
+    { value: 'Poor' as const, emoji: '👎', label: 'Poor' },
+  ];
+
   protected readonly currentSession = computed(() => {
     const currentId = this.chatService.currentSessionId();
     const sessions = this.chatService.sessions();
@@ -59,6 +66,14 @@ export class Chat implements OnInit {
         this.isLoading.set(false);
       },
     });
+  }
+
+  protected onEnter(event: Event): void {
+    const ke = event as KeyboardEvent;
+    if (!ke.shiftKey) {
+      ke.preventDefault();
+      this.sendMessage();
+    }
   }
 
   protected sendMessage() {
