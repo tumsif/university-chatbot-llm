@@ -9,11 +9,17 @@ type ButtonSize = 'default' | 'sm' | 'lg' | 'icon';
   selector: 'ui-button',
   standalone: true,
   imports: [RouterLink],
+  host: {
+    class: 'contents',
+  },
   template: `
     @if (routerLink(); as link) {
       <a [routerLink]="link" [class]="classes">{{ label() }}</a>
     } @else {
       <button [type]="type()" [disabled]="disabled()" [class]="classes" (click)="pressed.emit($event)">
+        @if (label()) {
+          <span>{{ label() }}</span>
+        }
         <ng-content />
       </button>
     }
@@ -41,10 +47,10 @@ export class UiButton {
   };
 
   private readonly sizes: Record<ButtonSize, string> = {
-    default: 'h-10 px-4 py-2 text-sm',
-    sm: 'h-8 px-3.5 text-xs rounded-lg min-w-[5rem]',
-    lg: 'h-12 px-8 text-base rounded-xl min-w-[10rem]',
-    icon: 'h-10 w-10',
+    default: 'h-9 sm:h-10 px-3.5 sm:px-4 py-2 text-sm',
+    sm: 'h-8 px-2.5 sm:px-3 text-xs sm:text-sm rounded-lg',
+    lg: 'h-11 sm:h-12 px-5 sm:px-8 text-sm sm:text-base rounded-xl w-full sm:w-auto sm:min-w-[9rem]',
+    icon: 'h-9 w-9 sm:h-10 sm:w-10',
   };
 
   get classes(): string {

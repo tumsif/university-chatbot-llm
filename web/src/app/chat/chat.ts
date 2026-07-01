@@ -160,12 +160,12 @@ export class Chat implements OnInit {
   }
 
   protected rateMessage(index: number, rating: 'Good' | 'Average' | 'Poor') {
-    const msgs = this.messages();
+    const msgs = [...this.messages()];
     const msg = msgs[index];
-    if (msg.role !== 'assistant' || !msg.id) return;
+    if (!msg || msg.role !== 'assistant' || !msg.id) return;
 
-    msg.rating = rating;
-    this.messages.set([...msgs]);
+    msgs[index] = { ...msg, rating };
+    this.messages.set(msgs);
 
     this.chatService.rateMessage(msg.id, rating).subscribe({
       error: (err) => console.error('Failed to submit feedback', err),
