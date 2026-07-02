@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     log_file: str = os.path.join(os.path.dirname(__file__), "logs", "app.log")
     faq_data_path: str = os.path.join(os.path.dirname(__file__), "faq_data.json")
     database_url: str = "sqlite:///./chat_history.db"
+    max_document_bytes: int = 512_000
+    allowed_document_extensions: tuple[str, ...] = (".txt", ".md")
     # Optional production .env fields (ignored if unused)
     environment: str = "development"
     debug: bool = False

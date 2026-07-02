@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, String, DateTime, Boolean, Text, ForeignKey
+from sqlalchemy import Column, String, DateTime, Boolean, Text, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 from backend.database import Base
 from backend.time_utils import now_local
@@ -15,6 +15,21 @@ class User(Base):
     created_at = Column(DateTime, default=now_local)
 
     sessions = relationship("ChatSession", back_populates="user", cascade="all, delete-orphan")
+    documents = relationship("UserDocument", back_populates="user", cascade="all, delete-orphan")
+
+
+class UserDocument(Base):
+    __tablename__ = "user_documents"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    filename = Column(String(255), nullable=False)
+    content = Column(Text, nullable=False)
+    file_type = Column(String(10), nullable=False)
+    char_count = Column(Integer, nullable=False, default=0)
+    created_at = Column(DateTime, default=now_local)
+
+    user = relationship("User", back_populates="documents")
 
 
 class ChatSession(Base):
@@ -22,10 +37,12 @@ class ChatSession(Base):
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=True, index=True)
+    document_id = Column(String(36), ForeignKey("user_documents.id", ondelete="SET NULL"), nullable=True, index=True)
     title = Column(String(255), default="New Chat")
     created_at = Column(DateTime, default=now_local)
 
     user = relationship("User", back_populates="sessions")
+    document = relationship("UserDocument", foreign_keys=[document_id])
     messages = relationship("Message", back_populates="session", cascade="all, delete-orphan")
 
 class Message(Base):

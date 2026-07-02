@@ -15,7 +15,9 @@ export class NewChat implements OnInit {
 
   protected readonly userQuery = signal('');
   protected readonly isLoading = signal(false);
+  protected readonly isUploading = signal(false);
   protected readonly inputError = signal('');
+  protected readonly activeDocument = this.chatService.activeDocument;
 
   protected readonly suggestions = [
     { emoji: '📅', label: 'Registration Deadlines', query: 'When is the deadline to register for classes?', color: 'text-purple-400 group-hover:text-purple-300' },
@@ -26,14 +28,42 @@ export class NewChat implements OnInit {
 
   ngOnInit() {
     this.chatService.currentSessionId.set(null);
+    this.chatService.clearActiveDocument();
   }
 
-  protected onEnter(event: Event): void {
-    const ke = event as KeyboardEvent;
-    if (!ke.shiftKey) {
-      ke.preventDefault();
-      this.onSubmit();
+  protected onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    const name = file.name.toLowerCase();
+    if (!name.endsWith('.txt') && !name.endsWith('.md')) {
+      this.inputError.set('Only .txt and .md files are supported.');
+      input.value = '';
+      return;
     }
+
+    this.inputError.set('');
+    this.isUploading.set(true);
+    this.chatService.uploadDocument(file).subscribe({
+      next: () => {
+        this.isUploading.set(false);
+        input.value = '';
+      },
+      error: (err) => {
+        this.isUploading.set(false);
+        input.value = '';
+        this.inputError.set(err.error?.detail || 'Failed to upload document.');
+      },
+    });
+  }
+
+  protected removeDocument(): void {
+    const doc = this.activeDocument();
+    if (!doc) return;
+    this.chatService.deleteDocument(doc.id).subscribe({
+      error: (err) => console.error('Failed to delete document', err),
+    });
   }
 
   protected sendQuery(query: string) {
@@ -46,7 +76,7 @@ export class NewChat implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
-        console.error('Failed to start session:', err);
+        this.inputError.set(err.error?.detail || 'Failed to start session.');
       },
     });
   }

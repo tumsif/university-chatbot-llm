@@ -3,16 +3,16 @@ import json
 import datetime
 import logging
 from typing import Optional, List
-from fastapi import FastAPI, HTTPException, status, Depends
+from fastapi import FastAPI, HTTPException, status, Depends, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, Field
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from backend.config import settings
 from backend.llm_client import LLMClient
 from backend.database import get_db, engine, Base
-from backend.models import ChatSession, Message, User
+from backend.models import ChatSession, Message, User, UserDocument
 from backend.migrations import run_migrations
 from backend.time_utils import now_local_iso, format_local
 from backend.auth import (
@@ -57,6 +57,10 @@ OPENAPI_TAGS = [
     {
         "name": "Sessions",
         "description": "Chat session history stored in SQLite.",
+    },
+    {
+        "name": "Documents",
+        "description": "Upload .txt/.md files for document-based Q&A.",
     },
     {
         "name": "Feedback",
@@ -105,6 +109,19 @@ class SessionResponse(BaseModel):
     id: str
     title: str
     created_at: datetime.datetime
+    document_id: Optional[str] = None
+    document_filename: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+class DocumentResponse(BaseModel):
+    id: str
+    filename: str
+    file_type: str
+    char_count: int
+    created_at: datetime.datetime
 
     class Config:
         from_attributes = True
@@ -133,6 +150,10 @@ class AskRequest(BaseModel):
         None,
         description="Existing chat session UUID. Omit to start a new session.",
     )
+    document_id: Optional[str] = Field(
+        None,
+        description="Uploaded document UUID to answer from (.txt / .md).",
+    )
 
     model_config = {"json_schema_extra": {
         "examples": [
@@ -149,6 +170,7 @@ class AskResponse(BaseModel):
     answer: str
     category: str
     rag_used: bool
+    document_used: bool = False
     timestamp: str
 
     model_config = {"json_schema_extra": {
@@ -209,6 +231,27 @@ def _get_user_session(db: Session, session_id: str, user: User) -> ChatSession:
     if not session:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
     return session
+
+
+def _get_user_document(db: Session, document_id: str, user: User) -> UserDocument:
+    document = (
+        db.query(UserDocument)
+        .filter(UserDocument.id == document_id, UserDocument.user_id == user.id)
+        .first()
+    )
+    if not document:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document not found")
+    return document
+
+
+def _session_to_response(session: ChatSession) -> SessionResponse:
+    return SessionResponse(
+        id=session.id,
+        title=session.title,
+        created_at=session.created_at,
+        document_id=session.document_id,
+        document_filename=session.document.filename if session.document else None,
+    )
 
 
 # --- Endpoints ---
@@ -288,12 +331,14 @@ def get_sessions(
     current_user: User = Depends(get_current_user),
 ):
     """Fetch all chat sessions for the authenticated user."""
-    return (
+    sessions = (
         db.query(ChatSession)
+        .options(joinedload(ChatSession.document))
         .filter(ChatSession.user_id == current_user.id)
         .order_by(ChatSession.created_at.desc())
         .all()
     )
+    return [_session_to_response(s) for s in sessions]
 
 
 @app.post("/sessions", response_model=SessionResponse, tags=["Sessions"])
@@ -310,7 +355,7 @@ def create_session(
     db.add(session)
     db.commit()
     db.refresh(session)
-    return session
+    return _session_to_response(session)
 
 
 @app.delete("/sessions/{session_id}", tags=["Sessions"])
@@ -367,6 +412,102 @@ def rate_message(
     db.commit()
     return {"status": "success", "message": "Rating saved successfully"}
 
+
+@app.get("/documents", response_model=List[DocumentResponse], tags=["Documents"])
+def list_documents(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """List uploaded documents for the authenticated user."""
+    return (
+        db.query(UserDocument)
+        .filter(UserDocument.user_id == current_user.id)
+        .order_by(UserDocument.created_at.desc())
+        .all()
+    )
+
+
+@app.post("/documents/upload", response_model=DocumentResponse, tags=["Documents"])
+async def upload_document(
+    file: UploadFile = File(...),
+    session_id: Optional[str] = Form(None),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Upload a .txt or .md document for question answering."""
+    if not file.filename:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Filename is required.")
+
+    ext = os.path.splitext(file.filename)[1].lower()
+    if ext not in settings.allowed_document_extensions:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Only .txt and .md files are supported.",
+        )
+
+    raw = await file.read()
+    if len(raw) > settings.max_document_bytes:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"File too large. Maximum size is {settings.max_document_bytes // 1024} KB.",
+        )
+
+    try:
+        content = raw.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="File must be valid UTF-8 text.",
+        ) from exc
+
+    content = content.strip()
+    if not content:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Document is empty.")
+
+    document = UserDocument(
+        user_id=current_user.id,
+        filename=file.filename,
+        content=content,
+        file_type=ext.lstrip("."),
+        char_count=len(content),
+    )
+    db.add(document)
+    db.commit()
+    db.refresh(document)
+
+    if session_id:
+        session = (
+            db.query(ChatSession)
+            .filter(ChatSession.id == session_id, ChatSession.user_id == current_user.id)
+            .first()
+        )
+        if session:
+            session.document_id = document.id
+            db.commit()
+
+    logger.info(
+        f"Document uploaded: '{file.filename}' ({len(content)} chars) by user {current_user.id}"
+    )
+    return document
+
+
+@app.delete("/documents/{document_id}", tags=["Documents"])
+def delete_document(
+    document_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Delete an uploaded document."""
+    document = _get_user_document(db, document_id, current_user)
+    db.query(ChatSession).filter(
+        ChatSession.document_id == document_id,
+        ChatSession.user_id == current_user.id,
+    ).update({ChatSession.document_id: None})
+    db.delete(document)
+    db.commit()
+    return {"status": "success", "message": "Document deleted successfully"}
+
+
 @app.post("/ask", response_model=AskResponse, tags=["Chat"])
 async def ask_question(
     request: AskRequest,
@@ -420,9 +561,23 @@ async def ask_question(
     # Format history for LLM client
     history = [{"role": msg.role, "content": msg.content} for msg in history_db]
 
+    document = None
+    document_id = request.document_id or (session.document_id if session else None)
+    if document_id:
+        document = _get_user_document(db, document_id, current_user)
+        if session and session.document_id != document.id:
+            session.document_id = document.id
+            db.commit()
+
     try:
         # 3. Generate response using LLM & RAG, passing history context
-        result = await llm_client.generate_response(question, use_rag=True, history=history)
+        result = await llm_client.generate_response(
+            question,
+            use_rag=True,
+            history=history,
+            document_content=document.content if document else None,
+            document_name=document.filename if document else None,
+        )
         
         timestamp = format_local()
         
@@ -458,6 +613,7 @@ async def ask_question(
             f"Answer: '{result['answer']}' | "
             f"Category: {result['category']} | "
             f"RAG: {result['rag_used']} | "
+            f"Document: {result.get('document_used', False)} | "
             f"Matched FAQ: {result['matched_faq']}"
         )
         logger.info(f"Successful Interaction: {log_msg}")
@@ -470,6 +626,7 @@ async def ask_question(
             answer=result["answer"],
             category=result["category"],
             rag_used=result["rag_used"],
+            document_used=result.get("document_used", False),
             timestamp=timestamp
         )
 

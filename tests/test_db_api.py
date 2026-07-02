@@ -23,12 +23,21 @@ class MockLLMClient:
     def faq_status(self):
         return {"faq_entries_loaded": 19, "faq_file": "mock", "faq_last_modified": None}
 
-    async def generate_response(self, question, use_rag=True, history=None):
+    async def generate_response(self, question, use_rag=True, history=None, document_content=None, document_name=None):
+        if document_content:
+            return {
+                "answer": f"Mock document answer to: {question}",
+                "category": "Document Q&A",
+                "rag_used": True,
+                "matched_faq": document_name or "test.md",
+                "document_used": True,
+            }
         return {
             "answer": f"Mock answer to: {question}",
             "category": "Mock Category",
             "rag_used": True,
-            "matched_faq": "Mock FAQ Question"
+            "matched_faq": "Mock FAQ Question",
+            "document_used": False,
         }
 
 class TestDatabaseAPI(unittest.TestCase):
@@ -192,6 +201,44 @@ class TestDatabaseAPI(unittest.TestCase):
         self.assertEqual(len(sessions), 1)
         self.assertEqual(sessions[0]["id"], session_id)
         self.assertEqual(sessions[0]["title"], "How do I register for classes next fall ...")
+
+    def test_document_upload_and_ask(self):
+        token = self._register_and_login(email="doc@udsm.ac.tz")
+        headers = self._auth_headers(token)
+
+        content = (
+            "# Hostel Policy\n\n"
+            "First-year students must apply via ARIS before 15 August.\n"
+            "Hostel fees are paid through GePG control numbers."
+        )
+        response = self.client.post(
+            "/documents/upload",
+            headers=headers,
+            files={"file": ("hostel-policy.md", content, "text/markdown")},
+        )
+        self.assertEqual(response.status_code, 200)
+        doc = response.json()
+        self.assertEqual(doc["filename"], "hostel-policy.md")
+        doc_id = doc["id"]
+
+        response = self.client.post(
+            "/ask",
+            json={
+                "question": "When must first-year students apply for hostel?",
+                "document_id": doc_id,
+            },
+            headers=headers,
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data["document_used"])
+        self.assertEqual(data["category"], "Document Q&A")
+
+        response = self.client.get("/documents", headers=headers)
+        self.assertEqual(len(response.json()), 1)
+
+        response = self.client.delete(f"/documents/{doc_id}", headers=headers)
+        self.assertEqual(response.status_code, 200)
 
 if __name__ == "__main__":
     unittest.main()

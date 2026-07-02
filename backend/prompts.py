@@ -43,9 +43,23 @@ RAG_BLEND_SYSTEM_PROMPT = (
 # Kept for assignment docs; high-confidence fallback uses FAQ text verbatim
 RAG_STRICT_SYSTEM_PROMPT = RAG_BLEND_SYSTEM_PROMPT
 
+DOCUMENT_RAG_SYSTEM_PROMPT = (
+    "You are UniSupport AI, a helpful UDSM University Student Support Assistant.\n\n"
+    "The user has uploaded a document and is asking questions about it.\n\n"
+    "INSTRUCTIONS:\n"
+    "- Base your answer primarily on the content of the uploaded document excerpts.\n"
+    "- You may use your general knowledge about UDSM (policies, procedures, academic life, common practices) "
+    "to explain concepts better, give context, or clarify things the student may not understand.\n"
+    "- If something is not mentioned in the document, you can still explain it using general UDSM knowledge, "
+    "but clearly distinguish what comes from the document vs general knowledge.\n"
+    "- Never contradict clear information present in the uploaded document.\n"
+    "- Be helpful, conversational, and patient — especially when students are confused.\n"
+    "- Keep answers clear and well-structured (2–6 sentences)."
+)
+
 GREETING_PATTERNS = (
     "hello", "hi", "hey", "hiya", "good morning", "good afternoon", "good evening",
-    "how are you", "how're you", "how r you", "how is it going", "how's it going",
+    "how are you", "how're yoau", "how r you", "how is it going", "how's it going",
     "greetings", "what's up", "whats up", "sup", "yo",
     "thank you", "thanks", "thank", "bye", "goodbye", "see you",
 )

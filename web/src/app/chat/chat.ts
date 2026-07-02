@@ -24,7 +24,9 @@ export class Chat implements OnInit {
   protected readonly isLoading = signal(false);
   protected readonly inputError = signal('');
   protected readonly copiedIndex = signal<number | null>(null);
+  protected readonly isUploading = signal(false);
   protected readonly systemStatus = this.chatService.systemStatus;
+  protected readonly activeDocument = this.chatService.activeDocument;
 
   protected readonly ratings = [
     { value: 'Good' as const, emoji: '👍', label: 'Good' },
@@ -42,6 +44,7 @@ export class Chat implements OnInit {
       const sessionId = params.get('id');
       if (sessionId) {
         this.chatService.currentSessionId.set(sessionId);
+        this.chatService.syncActiveDocumentForCurrentSession();
         this.loadMessages(sessionId);
       }
     });
@@ -84,14 +87,6 @@ export class Chat implements OnInit {
     });
   }
 
-  protected onEnter(event: Event): void {
-    const ke = event as KeyboardEvent;
-    if (!ke.shiftKey) {
-      ke.preventDefault();
-      this.sendMessage();
-    }
-  }
-
   protected sendMessage() {
     const query = this.userQuery().trim();
     if (!query) {
@@ -131,6 +126,7 @@ export class Chat implements OnInit {
           category: data.category,
           rag_used: data.rag_used,
           matched_faq: data.matched_faq,
+          document_used: data.document_used,
         };
         this.messages.update((msgs) => [...msgs, assistantMsg]);
       },
@@ -146,6 +142,44 @@ export class Chat implements OnInit {
         };
         this.messages.update((msgs) => [...msgs, errorMsg]);
       },
+    });
+  }
+
+  protected onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    const name = file.name.toLowerCase();
+    if (!name.endsWith('.txt') && !name.endsWith('.md')) {
+      this.inputError.set('Only .txt and .md files are supported.');
+      input.value = '';
+      return;
+    }
+
+    this.inputError.set('');
+    this.isUploading.set(true);
+    const sessionId = this.chatService.currentSessionId();
+    this.chatService.uploadDocument(file, sessionId).subscribe({
+      next: () => {
+        this.isUploading.set(false);
+        input.value = '';
+        this.chatService.loadSessions();
+      },
+      error: (err) => {
+        this.isUploading.set(false);
+        input.value = '';
+        this.inputError.set(err.error?.detail || 'Failed to upload document.');
+      },
+    });
+  }
+
+  protected removeDocument(): void {
+    const doc = this.activeDocument();
+    if (!doc) return;
+    this.chatService.deleteDocument(doc.id).subscribe({
+      next: () => this.chatService.loadSessions(),
+      error: (err) => console.error('Failed to delete document', err),
     });
   }
 

@@ -39,7 +39,7 @@ def _create_missing_tables() -> None:
 def run_migrations() -> None:
     """Create missing tables and patch legacy SQLite schemas in-place."""
     # Import models so metadata is populated before create_all
-    from backend.models import ChatSession, Message, User  # noqa: F401
+    from backend.models import ChatSession, Message, User, UserDocument  # noqa: F401
 
     MIGRATION_LOCK.parent.mkdir(parents=True, exist_ok=True)
     with open(MIGRATION_LOCK, "w") as lock_file:
@@ -56,6 +56,12 @@ def run_migrations() -> None:
                             text("ALTER TABLE chat_sessions ADD COLUMN user_id VARCHAR(36)")
                         )
                     logger.info("Migration: added chat_sessions.user_id column")
+                if "document_id" not in session_cols:
+                    with engine.begin() as conn:
+                        conn.execute(
+                            text("ALTER TABLE chat_sessions ADD COLUMN document_id VARCHAR(36)")
+                        )
+                    logger.info("Migration: added chat_sessions.document_id column")
         finally:
             fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
 

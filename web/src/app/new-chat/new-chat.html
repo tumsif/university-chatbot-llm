@@ -13,9 +13,45 @@
       <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-center mb-2 brand-text-gradient-h shrink-0">
         Welcome to UniSupport AI
       </h2>
-      <p class="text-slate-400 text-sm text-center mb-8 max-w-lg leading-relaxed shrink-0">
-        Ask any question about course registration, libraries, exam guidelines, fee structures, or campus hostels.
+      <p class="text-slate-400 text-sm text-center mb-6 max-w-lg leading-relaxed shrink-0">
+        Ask about university services, or upload a <span class="text-slate-300">.txt</span> / <span class="text-slate-300">.md</span> document and ask questions about it.
       </p>
+
+      <div class="w-full max-w-2xl mb-6 shrink-0">
+        <div class="rounded-2xl border border-slate-800 bg-slate-900/50 p-4">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div class="min-w-0">
+              <p class="text-sm font-semibold text-slate-200">Document Q&amp;A</p>
+              <p class="text-xs text-slate-500 mt-0.5">Upload notes or policy text, then ask questions below.</p>
+            </div>
+            <label
+              class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-medium cursor-pointer brand-gradient-b text-white shadow-sm transition-all hover:opacity-90 shrink-0"
+              [class.opacity-50]="isUploading() || chatService.systemStatus() === 'offline'"
+            >
+              <input
+                type="file"
+                accept=".txt,.md,text/plain,text/markdown"
+                class="hidden"
+                [disabled]="isUploading() || chatService.systemStatus() === 'offline'"
+                (change)="onFileSelected($event)"
+              />
+              @if (isUploading()) {
+                <span class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                Uploading...
+              } @else {
+                Upload file
+              }
+            </label>
+          </div>
+          @if (activeDocument(); as doc) {
+            <div class="mt-3 flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+              <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              <span class="text-xs text-emerald-300 truncate flex-1">{{ doc.filename }}</span>
+              <button type="button" (click)="removeDocument()" class="text-xs text-slate-400 hover:text-rose-400 cursor-pointer shrink-0">Remove</button>
+            </div>
+          }
+        </div>
+      </div>
 
       <div class="w-full max-w-2xl mb-6">
         <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-4 text-center">Suggested Prompt Examples</h4>
@@ -53,7 +89,7 @@
         name="query"
         [(ngModel)]="userQuery"
         [disabled]="isLoading() || chatService.systemStatus() === 'offline'"
-        placeholder="Ask a question to start a new chat..."
+        placeholder="{{ activeDocument() ? 'Ask a question about your document...' : 'Ask a question to start a new chat...' }}"
         class="flex-1 min-w-0 bg-slate-900 border border-slate-800 hover:border-slate-700 focus:border-purple-500 outline-none rounded-full px-5 sm:px-6 py-3.5 sm:py-4 text-sm text-slate-100 placeholder-slate-500 transition-all shadow-inner focus:ring-1 focus:ring-purple-500/20"
       />
       <button

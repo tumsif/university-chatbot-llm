@@ -9,10 +9,12 @@ from backend.config import settings
 from backend.prompts import (
     IMPROVED_SYSTEM_PROMPT,
     RAG_BLEND_SYSTEM_PROMPT,
+    DOCUMENT_RAG_SYSTEM_PROMPT,
     GREETING_PATTERNS,
     CONVERSATIONAL_PATTERNS,
     OFF_TOPIC_KEYWORDS,
 )
+from backend.document_store import retrieve_document_chunks
 
 logger = logging.getLogger("backend_logger")
 
@@ -207,6 +209,7 @@ class LLMClient:
             "category": faq["category"],
             "rag_used": True,
             "matched_faq": faq["question"],
+            "document_used": False,
         }
 
     def _normalize(self, text: str) -> str:
@@ -343,13 +346,18 @@ class LLMClient:
         question: str,
         use_rag: bool = True,
         history: Optional[list] = None,
+        document_content: Optional[str] = None,
+        document_name: Optional[str] = None,
     ) -> Dict[str, Any]:
+        has_document = bool(document_content and document_content.strip())
+
         if self._is_greeting(question):
             return {
                 "answer": self._greeting_reply(question),
                 "category": "Greeting",
                 "rag_used": False,
                 "matched_faq": None,
+                "document_used": False,
             }
 
         if self._is_conversational(question):
@@ -358,32 +366,73 @@ class LLMClient:
                 "category": "Greeting",
                 "rag_used": False,
                 "matched_faq": None,
+                "document_used": False,
             }
 
-        if self._is_off_topic(question):
+        if not has_document and self._is_off_topic(question):
             return {
                 "answer": self._off_topic_reply(),
                 "category": "Out of Scope",
                 "rag_used": False,
                 "matched_faq": None,
+                "document_used": False,
             }
 
         matched_faq = None
         rag_score = 0.0
         rag_confident = False
-        if use_rag:
+        if use_rag and not has_document:
             matched_faq, rag_score, rag_confident = self.retrieve_context(question)
 
         is_healthy, health_msg = await self.check_ollama_health()
         if not is_healthy:
+            if has_document:
+                chunks = retrieve_document_chunks(question, document_content or "")
+                excerpt = chunks[0] if chunks else (document_content or "")[:1200]
+                return {
+                    "answer": excerpt,
+                    "category": "Document Q&A",
+                    "rag_used": True,
+                    "matched_faq": document_name,
+                    "document_used": True,
+                }
             if matched_faq and rag_confident and rag_score >= RAG_FALLBACK_THRESHOLD:
-                return self._faq_response(matched_faq, rag_score, "fallback")
+                result = self._faq_response(matched_faq, rag_score, "fallback")
+                result["document_used"] = False
+                return result
             raise ConnectionError(health_msg)
 
-        use_rag_context = bool(matched_faq and rag_confident)
+        use_rag_context = bool(matched_faq and rag_confident and not has_document)
         faq_category = matched_faq["category"] if use_rag_context else "General University Support"
 
         try:
+            if has_document:
+                chunks = retrieve_document_chunks(question, document_content or "")
+                context = "\n\n---\n\n".join(chunks)
+                logger.info(
+                    f"Document RAG: '{document_name}' chunks={len(chunks)} question='{question[:60]}'"
+                )
+                user_content = (
+                    f"Uploaded document: {document_name or 'user document'}\n\n"
+                    f"Relevant excerpts:\n{context}\n\n"
+                    f"Student's question: {question}\n\n"
+                    f"Answer based on the excerpts above."
+                )
+                reply = await self._call_llm(
+                    question,
+                    DOCUMENT_RAG_SYSTEM_PROMPT,
+                    user_content,
+                    history,
+                    temperature=0.35,
+                )
+                return {
+                    "answer": reply,
+                    "category": "Document Q&A",
+                    "rag_used": True,
+                    "matched_faq": document_name,
+                    "document_used": True,
+                }
+
             if use_rag_context:
                 logger.info(
                     f"RAG+LLM blend: '{matched_faq['question']}' score={rag_score:.2f}"
@@ -427,14 +476,39 @@ class LLMClient:
                 "category": faq_category,
                 "rag_used": use_rag_context,
                 "matched_faq": matched_faq["question"] if use_rag_context else None,
+                "document_used": False,
             }
 
         except httpx.TimeoutException:
+            if has_document:
+                chunks = retrieve_document_chunks(question, document_content or "")
+                excerpt = chunks[0] if chunks else (document_content or "")[:1200]
+                return {
+                    "answer": excerpt,
+                    "category": "Document Q&A",
+                    "rag_used": True,
+                    "matched_faq": document_name,
+                    "document_used": True,
+                }
             if matched_faq and rag_confident:
-                return self._faq_response(matched_faq, rag_score, "timeout-fallback")
+                result = self._faq_response(matched_faq, rag_score, "timeout-fallback")
+                result["document_used"] = False
+                return result
             raise TimeoutError("Ollama model took too long to respond.")
         except Exception as e:
+            if has_document:
+                chunks = retrieve_document_chunks(question, document_content or "")
+                excerpt = chunks[0] if chunks else (document_content or "")[:1200]
+                return {
+                    "answer": excerpt,
+                    "category": "Document Q&A",
+                    "rag_used": True,
+                    "matched_faq": document_name,
+                    "document_used": True,
+                }
             if matched_faq and rag_confident:
-                return self._faq_response(matched_faq, rag_score, "error-fallback")
+                result = self._faq_response(matched_faq, rag_score, "error-fallback")
+                result["document_used"] = False
+                return result
             logger.error(f"Error during Ollama query: {str(e)}")
             raise e
