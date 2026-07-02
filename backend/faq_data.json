@@ -2,51 +2,232 @@
   {
     "category": "Course Registration",
     "question": "How do I register for courses and what is the deadline?",
-    "answer": "Course registration is completed online through the Student Portal. Go to 'Academic' -> 'Course Registration'. Select your courses according to your program structure and click 'Submit'. The deadline for regular course registration is the 2nd Friday of the semester. Late registration incurs a fee of $50 and is open until the 3rd Friday of the semester."
+    "answer": "Course registration is completed online via the Academic Registration Information System (ARIS). Log in, navigate to Course Registration, select courses according to your specific program structure, and confirm. Regular registration closes at the end of the 2nd week of the semester. Late registration attracts a penalty of TZS 50,000 and is strictly closed by the end of the 3rd week.",
+    "aliases": [
+      "when is the deadline to register for classes at udsm",
+      "how do i sign up for courses on aris",
+      "aris course registration deadline",
+      "last day to register for modules",
+      "how to enroll in classes this semester",
+      "how to register for courses"
+    ],
+    "keywords": ["register", "registration", "aris", "courses", "deadline", "portal", "add", "drop", "semester", "tzs"]
   },
   {
     "category": "Course Registration",
     "question": "Can I add or drop courses after the semester starts?",
-    "answer": "Yes, you can add or drop courses during the first two weeks of the semester (the Add/Drop period) via the Student Portal. No changes are permitted after the end of the second week."
+    "answer": "Yes. The Add/Drop period is open during the first two weeks of the semester via ARIS. You can adjust your elective courses within this window, provided you maintain the minimum required core credits. No course modifications are permitted after the second week.",
+    "aliases": [
+      "can i change my elective courses after lectures start",
+      "add drop period udsm",
+      "swap a course mid semester",
+      "withdraw from a class on aris"
+    ],
+    "keywords": ["add", "drop", "swap", "withdraw", "change", "courses", "weeks", "semester", "aris"]
+  },
+  {
+    "category": "Course Registration",
+    "question": "What happens if I register late for courses?",
+    "answer": "Late registration begins on Monday of the 3rd week of the semester and incurs a non-refundable fine of TZS 50,000 generated via a GePG control number. Failure to register by the end of the 3rd week means you will not be recognized on class lists or allowed to sit for University Examinations.",
+    "aliases": [
+      "late registration fee udsm",
+      "missed registration deadline aris",
+      "register after deadline penalty"
+    ],
+    "keywords": ["late", "fee", "deadline", "registration", "50000", "penalty", "aris"]
   },
   {
     "category": "Examination Rules",
     "question": "What is the grading system and what happens if I fail a course?",
-    "answer": "The university uses a standard letter grading scale: A (70-100%, 5.0 GPA), B (60-69%, 4.0 GPA), C (50-59%, 3.0 GPA), D (40-49%, 2.0 GPA), and F (0-39%, 0.0 GPA). If you fail a course (grade F), you must re-register for the course and retake it in the next semester it is offered. A course can be retaken a maximum of three times."
+    "answer": "UDSM uses the following grading scale: A (70–100%, GPA 5.0), B+ (60–69%, 4.0), B (50–59%, 3.0), C (40–49%, 2.0) which is the minimum passing grade for undergraduates, and F (0–39%, 0.0). If you fail an elective or core course, you must sit for a Supplementary Examination ('Supp'). Failing a Supp means you must carry over the course. A cumulative GPA below 2.0 results in Academic Discontinuation.",
+    "aliases": [
+      "udsm grading scale",
+      "what grade do i need to pass udsm",
+      "failed a course what now",
+      "gpa system mlimani",
+      "supplementary exams rules",
+      "carryover course"
+    ],
+    "keywords": ["grade", "grading", "gpa", "fail", "failed", "retake", "pass", "marks", "supplementary", "supp", "carryover", "discontinuation"]
   },
   {
     "category": "Examination Rules",
     "question": "What happens if I miss an exam due to illness?",
-    "answer": "If you miss an exam due to a medical emergency, you must submit a medical report signed by the University Medical Officer to the Registry within 48 hours of the exam. If approved, you will be allowed to sit for a Special Examination in the break period."
+    "answer": "If you miss a University Examination due to illness, you must report immediately to the UDSM Health Centre (Health Centre/Dispensary) and obtain a medical report signed by the University Medical Officer. This must be submitted alongside an official 'Incomplete' request form to your Head of Department within 48 hours. If approved by the Senate, you will be permitted to sit for a Special Examination.",
+    "aliases": [
+      "missed exam because i was sick udsm",
+      "special exam application",
+      "medical excuse for exam udsm",
+      "udsm health centre medical report"
+    ],
+    "keywords": ["miss", "missed", "illness", "sick", "medical", "exam", "special", "absent", "incomplete", "health centre"]
+  },
+  {
+    "category": "Examination Rules",
+    "question": "What are the rules on cheating and academic misconduct during exams?",
+    "answer": "UDSM maintains a zero-tolerance policy for academic dishonesty under the UDSM Student By-Laws. Bringing unauthorized materials (including phones, smartwatches, or unauthorized scrap paper) into the exam room, copying, or plagiarism results in immediate academic discontinuation from the University. All cases are sent to the University Disciplinary Committee.",
+    "aliases": [
+      "exam cheating policy udsm",
+      "academic dishonesty mlimani",
+      "plagiarism rules",
+      "caught with a phone in exam room"
+    ],
+    "keywords": ["cheat", "cheating", "plagiarism", "misconduct", "exam", "disciplinary", "discontinuation", "by-laws"]
+  },
+  {
+    "category": "Examination Rules",
+    "question": "When do end-of-semester examinations take place?",
+    "answer": "End-of-semester examinations are held according to the official Almanac approved by the Senate. Generally, the exact dates vary per semester, but individual timetables are compiled by the department and published on ARIS two to three weeks prior. Students are given a designated Revision Week directly preceding the exam session.",
+    "aliases": [
+      "exam timetable aris",
+      "when are final exams udsm",
+      "examination dates mlimani",
+      "revision week dates"
+    ],
+    "keywords": ["exam", "examination", "timetable", "final", "almanac", "revision", "aris"]
   },
   {
     "category": "Library Services",
     "question": "How many books can I borrow from the library and for how long?",
-    "answer": "Undergraduates can borrow up to 4 books for a duration of 14 days. Postgraduates can borrow up to 8 books for 30 days. Renewals can be made online twice unless the book has been reserved by another user. Overdue books attract a fine of $1 per day per book."
+    "answer": "At the Dr. Wilbert Chagula Central Library, undergraduate students can borrow up to 3 books for a period of 14 days. Postgraduates can borrow up to 5 books for 30 days. Book renewals can be processed online or at the circulation desk up to two times if the item isn't reserved. Late returns attract a daily fine per book.",
+    "aliases": [
+      "chagula library borrowing limit",
+      "library borrowing",
+      "how long can i keep library books",
+      "book loan period udsm",
+      "library fine for late return"
+    ],
+    "keywords": ["library", "books", "borrow", "loan", "renew", "overdue", "fine", "chagula"]
+  },
+  {
+    "category": "Library Services",
+    "question": "What are the library opening hours?",
+    "answer": "The Dr. Wilbert Chagula Central Library is open Monday–Friday from 8:00 AM to 10:00 PM, and Saturdays from 8:00 AM to 4:00 PM. It is closed on Sundays and public holidays. During University Examination periods, opening hours are extended up to 11:00 PM or midnight, as announced on the official library notice boards.",
+    "aliases": [
+      "when is the library open",
+      "chagula library hours",
+      "library closing time mlimani"
+    ],
+    "keywords": ["library", "hours", "open", "closing", "schedule", "chagula"]
   },
   {
     "category": "ICT Support",
-    "question": "How do I connect to the university campus Wi-Fi and reset my portal password?",
-    "answer": "To connect to the 'Uni-Wifi' network, select it on your device and log in using your student email (e.g. registrationNumber@student.university.edu) and your portal password. To reset your portal password, go to the Student Portal login page, click 'Forgot Password', and follow the email reset link. For further ICT issues, visit the Helpdesk at the Admin Block, Room 102, or email support@university.edu."
+    "question": "How do I connect to campus Wi-Fi and reset my ARIS password?",
+    "answer": "Connect to the 'UDSM-Wifi' network across campus using your university-issued student email credentials. If you forget your ARIS login password, go to the ARIS login page, click 'Forgot Password', and enter your registration number to receive a reset link. For physical assistance, visit the University Computing Centre (UCC) helpdesk or your respective college ICT support unit.",
+    "aliases": [
+      "udsm wifi password",
+      "forgot aris password",
+      "reset student email password",
+      "cannot login to aris",
+      "ucc helpdesk location"
+    ],
+    "keywords": ["wifi", "wi-fi", "password", "aris", "login", "ict", "helpdesk", "email", "ucc", "computing"]
+  },
+  {
+    "category": "ICT Support",
+    "question": "How do I access the ARIS portal and e-learning platform?",
+    "answer": "Access the student gateway online at aris.udsm.ac.tz using your index/registration number. For lecture materials, online assignments, and course modules, log into the UDSM Learning Management System (UDSM-LMS / Moodle) at lms.udsm.ac.tz using your student email single sign-on.",
+    "aliases": [
+      "aris login link",
+      "udsm lms access",
+      "e-learning platform moodle",
+      "how to log into moodle udsm"
+    ],
+    "keywords": ["aris", "lms", "e-learning", "moodle", "login", "dashboard", "udsm.ac.tz"]
   },
   {
     "category": "Hostel Application",
     "question": "How do I apply for a hostel and what are the hostel fees?",
-    "answer": "Hostel applications are opened 30 days before the start of each semester via the Student Portal. Accommodation is allocated on a first-come, first-served basis, with priority given to first-year and international students. The hostel fee is $350 per semester, payable in full before room allocation is finalized."
+    "answer": "Hostel applications are made online via ARIS or the designated accommodation system before the start of the academic year. Rooms at the Main Campus Hostels (Hall 1-7, Dr. John Joseph Pombe Magufuli Hostels) and Mabibo Hostels are allocated based on priority (medical grounds, first-year status, international status). Fees must be generated via a GePG control number on ARIS and paid before checking in.",
+    "aliases": [
+      "hostel allocation process udsm",
+      "mabibo hostel application",
+      "magufuli hostel accommodation fees",
+      "how to get a room on campus",
+      "apply for hall of residence"
+    ],
+    "keywords": ["hostel", "accommodation", "dorm", "room", "fee", "mabibo", "magufuli", "hall", "apply", "gepg"]
+  },
+  {
+    "category": "Hostel Application",
+    "question": "What items am I allowed to bring to the hostel?",
+    "answer": "Students must bring their own bedding (mattress size depends on assigned room/hall), bucket, and personal effects. Basic low-consumption study electronics are permitted. Cooking appliances (electric hotplates, coils, gas cookers), heavy fridges, and pets are strictly prohibited under the UDSM Accommodation By-Laws and can lead to immediate eviction.",
+    "aliases": [
+      "hostel rules what to bring udsm",
+      "allowed items in mabibo",
+      "prohibited items in magufuli hostels"
+    ],
+    "keywords": ["hostel", "bring", "items", "rules", "prohibited", "cooking", "mabibo", "hall"]
   },
   {
     "category": "Fee Payment",
     "question": "What are the fee payment options and is there an instalment plan?",
-    "answer": "Tuition fees are payable via bank deposit, bank transfer, or online payment through the Student Portal. The university offers an instalment plan: 60% of total fees must be paid to register for courses at the start of the semester, and the remaining 40% must be paid before the start of final examinations. Failure to clear fees blocks access to the exam card."
+    "answer": "All payments must be made using a Government Electronic Payment Gateway (GePG) Control Number generated through your ARIS portal account. You can pay via mobile money (M-Pesa, Tigo Pesa, Airtel Money, Halopesa) or at any commercial bank branch. UDSM allows a two-instalment plan: at least 50% of the tuition fees plus direct university costs must be cleared to register in Semester 1; the remaining 50% must be paid before obtaining your examination card for end-of-semester exams.",
+    "aliases": [
+      "tuition installment plan udsm",
+      "how to get gepg control number",
+      "fee payment methods mlimani",
+      "can i pay fees in installments",
+      "how much to pay to register"
+    ],
+    "keywords": ["fees", "tuition", "payment", "instalment", "installment", "control number", "gepg", "bank", "exam card", "50"]
+  },
+  {
+    "category": "Fee Payment",
+    "question": "Where can I get a receipt or proof of fee payment?",
+    "answer": "Once a GePG transaction clears, the status updates instantly on your ARIS account under the financial index. You can view and download your official digital payment receipts directly from ARIS → Financial Matters. If a payment does not reflect within 24 hours, take your mobile money transaction ID or bank teller slip to the Main Administration Block Bursar's Office.",
+    "aliases": [
+      "fee receipt download aris",
+      "proof of payment tuition udsm",
+      "bursar office receipt control number"
+    ],
+    "keywords": ["receipt", "proof", "payment", "bursar", "finance", "aris", "gepg"]
   },
   {
     "category": "Academic Calendar",
     "question": "What are the key dates for the current academic calendar?",
-    "answer": "The current semester runs as follows: Semester Starts / Lectures Begin: September 1st; Mid-Semester Break: October 15th to October 22nd; Lectures End: November 30th; Revision Week: December 1st to December 7th; End-of-Semester Examinations: December 8th to December 22nd."
+    "answer": "Key dates including orientation week, semester commencement, mid-semester breaks, and examination blocks are outlined in the official UDSM Almanac published annually by the Directorate of Undergraduate Studies (DUS). The full calendar document is downloadable via the main udsm.ac.tz website.",
+    "aliases": [
+      "udsm semester dates",
+      "when does orientation week start",
+      "academic year calendar almanac",
+      "when do exams start at udsm"
+    ],
+    "keywords": ["calendar", "semester", "almanac", "dus", "break", "lectures", "orientation"]
   },
   {
     "category": "Student Conduct",
     "question": "What are the rules regarding dress code and student ID cards?",
-    "answer": "Students are expected to dress decently and professionally. Inappropriate clothing (e.g., extremely short skirts, ripped jeans, sleeveless tops) is not permitted on campus. Student ID cards must be worn and visible at all times while on university premises. Lost ID cards can be replaced at the Security Office for a fee of $15."
+    "answer": "UDSM strictly enforces a decent dress code as outlined in the Student Dress Code Guidelines. Revealing clothing, tight sports attire, caps/sunglasses in lecture rooms, or transparent clothing are not allowed. Your Student ID card must be worn visibly at all times around campus premises. Replacement of lost IDs is processed by the Security Unit upon presenting a valid Loss Report from the police and paying a replacement fee via GePG.",
+    "aliases": [
+      "udsm dress code rules",
+      "student id card rules mlimani",
+      "lost id card replacement fee",
+      "what not to wear on campus"
+    ],
+    "keywords": ["dress", "code", "id", "card", "conduct", "security", "campus", "decent", "loss report"]
+  },
+  {
+    "category": "Student Conduct",
+    "question": "How do I report harassment or a conduct violation?",
+    "answer": "Any form of harassment, discrimination, or misconduct can be reported directly to the Office of the Dean of Students located at the Student Centre (Mlimani Main Campus). UDSM also operates an anti-sexual harassment committee where matters are handled with strict confidentiality. Emergencies or security threats can be flagged to the UDSM Auxiliary Security Unit at the main gate or security desk.",
+    "aliases": [
+      "report sexual harassment udsm",
+      "student misconduct complaint",
+      "dean of students office location"
+    ],
+    "keywords": ["harassment", "misconduct", "report", "complaint", "conduct", "dean", "security"]
+  },
+  {
+    "category": "General University Support",
+    "question": "What can you help me with?",
+    "answer": "I am your UDSM Virtual Assistant. I can help guide you through ARIS registration, GePG fee payment pathways, exam regulations (including Supps and Carryovers), library access, ICT helpdesk issues via UCC, hostel allocations at Mabibo or Main Campus, and adherence to UDSM student By-Laws.",
+    "aliases": [
+      "what can this bot do",
+      "what topics can you answer",
+      "help me with university questions",
+      "udsm support topics"
+    ],
+    "keywords": ["help", "support", "topics", "services", "assist", "udsm", "aris"]
   }
 ]

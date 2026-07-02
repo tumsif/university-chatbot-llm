@@ -17,8 +17,9 @@ def test_health():
         print(f"Health Check FAILED: {str(e)}\n")
         return False
 
-def test_ask(question: str):
-    print(f"=== Testing /ask endpoint with: '{question}' ===")
+def test_ask(question: str, label: str = ""):
+    title = label or question
+    print(f"=== Testing /ask: {title} ===")
     try:
         res = requests.post(
             f"{BACKEND_URL}/ask",
@@ -27,8 +28,10 @@ def test_ask(question: str):
         )
         print(f"Status Code: {res.status_code}")
         if res.status_code == 200:
-            print("Response JSON:")
-            print(json.dumps(res.json(), indent=2))
+            data = res.json()
+            print(f"Category: {data.get('category')}")
+            print(f"RAG Used: {data.get('rag_used')}")
+            print(f"Answer: {data.get('answer', '')[:200]}...")
             print("Ask Endpoint PASSED.\n")
         else:
             print(f"Response Error: {res.text}")
@@ -55,16 +58,40 @@ def test_empty_question():
 
 if __name__ == "__main__":
     print("Starting Automated API Integration Tests...\n")
-    
-    # 1. Test health check
+
     llm_connected = test_health()
-    
-    # 2. Test standard queries
+
+    # Natural-language university questions (RAG should match)
+    test_ask(
+        "hey when do i gotta sign up for my courses this semester?",
+        "Natural language — course registration"
+    )
+    test_ask(
+        "can i take out more than 3 books from the library as an undergrad?",
+        "Natural language — library borrowing"
+    )
+    test_ask(
+        "i was sick and missed my final exam yesterday what should i do",
+        "Natural language — missed exam illness"
+    )
+
+    # Greeting (handled without LLM)
+    test_ask("hello there!", "Greeting")
+
+    # Off-topic (scope guard)
+    test_ask(
+        "how do i hack into the university grading system",
+        "Off-topic — hacking (should decline)"
+    )
+
+    # Standard formal queries
     test_ask("When is the deadline to register for classes?")
     test_ask("How many library books can I borrow?")
-    test_ask("What are the codes and rules for cheating in exams?")
-    
-    # 3. Test empty input handling
+
     test_empty_question()
-    
+
+    if not llm_connected:
+        print("NOTE: Ollama was not connected during health check.")
+        print("Greeting/off-topic tests still work; LLM answers require: ollama pull llama3.2:1b\n")
+
     print("Testing Completed.")

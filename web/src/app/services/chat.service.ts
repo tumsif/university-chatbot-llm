@@ -2,6 +2,8 @@ import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
+import { formatLocalTime } from '../lib/time';
+import { API_BASE_URL } from '../lib/api-config';
 
 export interface Message {
   id?: string;
@@ -11,12 +13,24 @@ export interface Message {
   category?: string;
   rag_used?: boolean;
   matched_faq?: string;
+  document_used?: boolean;
+  document_filename?: string;
   rating?: 'Good' | 'Average' | 'Poor';
 }
 
 export interface ChatSession {
   id: string;
   title: string;
+  created_at: string;
+  document_id?: string | null;
+  document_filename?: string | null;
+}
+
+export interface UserDocument {
+  id: string;
+  filename: string;
+  file_type: string;
+  char_count: number;
   created_at: string;
 }
 
@@ -33,18 +47,13 @@ export interface HealthInfo {
 })
 export class ChatService {
   private readonly http = inject(HttpClient);
-  private readonly backendUrl = 'http://localhost:8000';
+  private readonly backendUrl = API_BASE_URL;
 
-  // Shared state signals
   readonly sessions = signal<ChatSession[]>([]);
   readonly currentSessionId = signal<string | null>(null);
+  readonly activeDocument = signal<UserDocument | null>(null);
   readonly systemStatus = signal<'online' | 'degraded' | 'offline'>('offline');
   readonly healthDetails = signal<HealthInfo | null>(null);
-
-  constructor() {
-    this.checkSystemHealth();
-    this.loadSessions();
-  }
 
   checkSystemHealth(): void {
     this.http.get<HealthInfo>(`${this.backendUrl}/health`).subscribe({
@@ -68,9 +77,59 @@ export class ChatService {
     this.http.get<ChatSession[]>(`${this.backendUrl}/sessions`).subscribe({
       next: (data) => {
         this.sessions.set(data);
+        this.syncActiveDocumentForCurrentSession();
       },
       error: (err) => console.error('Failed to load sessions:', err),
     });
+  }
+
+  syncActiveDocumentForCurrentSession(): void {
+    const sessionId = this.currentSessionId();
+    if (!sessionId) return;
+    const session = this.sessions().find((s) => s.id === sessionId);
+    if (session?.document_id && session.document_filename) {
+      const current = this.activeDocument();
+      if (!current || current.id !== session.document_id) {
+        this.activeDocument.set({
+          id: session.document_id,
+          filename: session.document_filename,
+          file_type: session.document_filename.endsWith('.md') ? 'md' : 'txt',
+          char_count: 0,
+          created_at: session.created_at,
+        });
+      }
+    } else if (session && !session.document_id) {
+      this.activeDocument.set(null);
+    }
+  }
+
+  setActiveDocument(doc: UserDocument | null): void {
+    this.activeDocument.set(doc);
+  }
+
+  clearActiveDocument(): void {
+    this.activeDocument.set(null);
+  }
+
+  uploadDocument(file: File, sessionId: string | null = null): Observable<UserDocument> {
+    const form = new FormData();
+    form.append('file', file);
+    if (sessionId) {
+      form.append('session_id', sessionId);
+    }
+    return this.http.post<UserDocument>(`${this.backendUrl}/documents/upload`, form).pipe(
+      tap((doc) => this.activeDocument.set(doc)),
+    );
+  }
+
+  deleteDocument(documentId: string): Observable<void> {
+    return this.http.delete<void>(`${this.backendUrl}/documents/${documentId}`).pipe(
+      tap(() => {
+        if (this.activeDocument()?.id === documentId) {
+          this.activeDocument.set(null);
+        }
+      }),
+    );
   }
 
   getSessionMessages(sessionId: string): Observable<Message[]> {
@@ -80,13 +139,11 @@ export class ChatService {
           id: m.id,
           role: m.role as 'user' | 'assistant',
           content: m.content,
-          timestamp: new Date(m.created_at).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-          }),
+          timestamp: formatLocalTime(m.created_at),
           category: m.category,
           rag_used: m.rag_used,
           matched_faq: m.matched_faq,
+          document_used: m.category === 'Document Q&A',
           rating: m.rating as 'Good' | 'Average' | 'Poor' | undefined,
         }))
       )
@@ -101,11 +158,21 @@ export class ChatService {
     );
   }
 
-  sendMessage(question: string, sessionId: string | null): Observable<any> {
-    const body = { question, session_id: sessionId };
+  sendMessage(question: string, sessionId: string | null, documentId?: string | null): Observable<any> {
+    const body: {
+      question: string;
+      session_id: string | null;
+      document_id?: string;
+    } = { question, session_id: sessionId };
+
+    const docId = documentId ?? this.activeDocument()?.id;
+    if (docId) {
+      body.document_id = docId;
+    }
+
     return this.http.post<any>(`${this.backendUrl}/ask`, body).pipe(
       tap(() => {
-        this.loadSessions(); // Reload sessions to update titles or add new ones
+        this.loadSessions();
       })
     );
   }

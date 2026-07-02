@@ -205,3 +205,7 @@ poetry.toml
 pyrightconfig.json
 
 # End of https://www.toptal.com/developers/gitignore/api/python,angular
+
+# Temporary SSH keys for Cursor server access (never commit)
+.cursor-ssh/
+chat_history.db

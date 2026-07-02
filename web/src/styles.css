@@ -1,3 +1,246 @@
-/* You can add global styles to this file, and also import other style files */
-
 @import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  --color-background: #09090b;
+  --color-foreground: #fafafa;
+  --color-card: #111113;
+  --color-card-foreground: #fafafa;
+  --color-popover: #111113;
+  --color-popover-foreground: #fafafa;
+  --color-primary: #9333ea;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #1c1c21;
+  --color-secondary-foreground: #fafafa;
+  --color-muted: #18181b;
+  --color-muted-foreground: #a1a1aa;
+  --color-accent: #1f1f27;
+  --color-accent-foreground: #fafafa;
+  --color-destructive: #ef4444;
+  --color-border: #27272a;
+  --color-input: #18181b;
+  --color-ring: #9333ea;
+  --color-brand: #a855f7;
+  --color-brand-light: #c084fc;
+  --color-surface: #0f0f12;
+
+  /* Hex palette overrides — better Firefox compatibility than default oklch tokens */
+  --color-purple-300: #d8b4fe;
+  --color-purple-400: #c084fc;
+  --color-purple-500: #a855f7;
+  --color-purple-600: #9333ea;
+  --color-blue-400: #60a5fa;
+  --color-blue-500: #3b82f6;
+  --color-blue-600: #2563eb;
+  --color-slate-100: #f1f5f9;
+  --color-slate-300: #cbd5e1;
+  --color-slate-400: #94a3b8;
+  --color-slate-500: #64748b;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+  --color-slate-900: #0f172a;
+  --color-slate-950: #020617;
+
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: rgba(147, 51, 234, 0.35);
+  color: #fff;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.mesh-bg {
+  background-color: #09090b;
+  background-image:
+    radial-gradient(ellipse 80% 60% at 50% -20%, rgba(147, 51, 234, 0.18), transparent),
+    radial-gradient(ellipse 50% 40% at 100% 0%, rgba(59, 130, 246, 0.12), transparent),
+    radial-gradient(ellipse 40% 30% at 0% 100%, rgba(147, 51, 234, 0.08), transparent);
+}
+
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+.glass {
+  background: rgba(17, 17, 19, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.text-gradient {
+  color: #c084fc;
+  background: linear-gradient(135deg, #c084fc 0%, #818cf8 50%, #38bdf8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Hex gradients for clipped text — Firefox-safe (no Tailwind oklab/@property) */
+.brand-text-gradient {
+  color: #c084fc;
+  background-image: linear-gradient(to bottom, #c084fc, #60a5fa);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brand-text-gradient-h {
+  color: #c084fc;
+  background-image: linear-gradient(to right, #c084fc, #60a5fa);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@supports not (background-clip: text) {
+  .brand-text-gradient,
+  .brand-text-gradient-h,
+  .text-gradient {
+    background: none;
+    -webkit-text-fill-color: currentcolor;
+    color: #c084fc;
+  }
+}
+
+.glow-violet,
+.glow-purple {
+  box-shadow: 0 0 40px rgba(147, 51, 234, 0.35);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.85);
+  }
+}
+
+.animate-pulse-dot {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+/* Firefox-safe fallbacks for Tailwind v4 oklab/@property gradients */
+.brand-gradient-b {
+  background-color: #9333ea;
+  background-image: linear-gradient(to bottom, #9333ea, #2563eb);
+}
+
+.brand-gradient-br {
+  background-color: #9333ea;
+  background-image: linear-gradient(to bottom right, #9333ea, #2563eb);
+}
+
+.brand-gradient-r {
+  background-color: #9333ea;
+  background-image: linear-gradient(to right, #9333ea, #2563eb);
+}
+
+@media (hover: hover) {
+  .brand-gradient-b:hover,
+  .brand-gradient-br:hover,
+  .brand-gradient-r:hover {
+    background-image: linear-gradient(to bottom right, #a855f7, #3b82f6);
+  }
+}
+
+.bg-gradient-to-b.from-purple-600.to-blue-600,
+.bg-gradient-to-br.from-purple-600.to-blue-600,
+.bg-gradient-to-r.from-purple-600.to-blue-600 {
+  background-color: #9333ea;
+}
+
+.bg-gradient-to-b.from-purple-600.to-blue-600 {
+  background-image: linear-gradient(to bottom, #9333ea, #2563eb);
+}
+
+.bg-gradient-to-br.from-purple-600.to-blue-600 {
+  background-image: linear-gradient(to bottom right, #9333ea, #2563eb);
+}
+
+.bg-gradient-to-r.from-purple-600.to-blue-600 {
+  background-image: linear-gradient(to right, #9333ea, #2563eb);
+}
+
+@media (hover: hover) {
+  .hover\:from-purple-500.hover\:to-blue-500:hover.bg-gradient-to-b,
+  .hover\:from-purple-500.hover\:to-blue-500:hover.bg-gradient-to-br,
+  .hover\:from-purple-500.hover\:to-blue-500:hover.bg-gradient-to-r {
+    background-image: linear-gradient(to bottom right, #a855f7, #3b82f6);
+  }
+}

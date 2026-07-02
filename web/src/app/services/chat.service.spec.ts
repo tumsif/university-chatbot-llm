@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { ChatService } from './chat.service';
+import { API_BASE_URL } from '../lib/api-config';
 
 describe('ChatService', () => {
   let service: ChatService;
@@ -24,21 +25,20 @@ describe('ChatService', () => {
   });
 
   it('should be created', () => {
-    // Expect the automatic HTTP requests made in the constructor
-    const reqHealth = httpMock.expectOne('http://localhost:8000/health');
-    expect(reqHealth.request.method).toBe('GET');
-    reqHealth.flush({
+    expect(service).toBeTruthy();
+  });
+
+  it('should check health via /api', () => {
+    service.checkSystemHealth();
+    const req = httpMock.expectOne(`${API_BASE_URL}/health`);
+    expect(req.request.method).toBe('GET');
+    req.flush({
       status: 'healthy',
       backend: 'FastAPI',
       llm_connected: true,
       llm_message: 'OK',
-      model_configured: 'llama3'
+      model_configured: 'llama3',
     });
-
-    const reqSessions = httpMock.expectOne('http://localhost:8000/sessions');
-    expect(reqSessions.request.method).toBe('GET');
-    reqSessions.flush([]);
-
-    expect(service).toBeTruthy();
+    expect(service.systemStatus()).toBe('online');
   });
 });
